@@ -5,6 +5,13 @@
     xmlns:opentopic-func="http://www.idiominc.com/opentopic/exsl/function"
     version="2.0">
 
+
+    <xsl:include href="custom-toc-attrs.xsl"/>
+    
+    <xsl:include href="custom-title-attrs.xsl"/>
+    
+    <xsl:include href="custom-index-attrs.xsl"/>
+    
     <!-- basic settings -->
 
     <!--The side column width is the amount the body text is indented relative to the margin. -->
@@ -103,7 +110,7 @@
     <xsl:attribute-set name="__frontmatter__title" use-attribute-sets="common.title">
         <xsl:attribute name="space-before">80mm</xsl:attribute>
         <xsl:attribute name="space-before.conditionality">retain</xsl:attribute>
-        <xsl:attribute name="font-size">22pt</xsl:attribute>
+        <xsl:attribute name="font-size">40pt</xsl:attribute>
         <xsl:attribute name="font-weight">bold</xsl:attribute>
         <xsl:attribute name="line-height">140%</xsl:attribute>
     </xsl:attribute-set>
@@ -115,164 +122,6 @@
     <xsl:attribute-set name="__frontmatter__subtitle" use-attribute-sets="common.title">
         <xsl:attribute name="font-size">24pt</xsl:attribute>
     </xsl:attribute-set>
-    
-    <!-- toc -->
-    <xsl:attribute-set name="__toc__header" use-attribute-sets="topic.title">
-        <xsl:attribute name="space-before">0pt</xsl:attribute>
-        <xsl:attribute name="space-after">16.8pt</xsl:attribute>
-        <xsl:attribute name="font-size">20pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="padding-top">16.8pt</xsl:attribute>
-        <xsl:attribute name="border-bottom-width">1.5pt</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="__toc__leader">
-        <xsl:attribute name="leader-pattern">space</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="__toc__chapter__content" use-attribute-sets="__toc__topic__content">
-        <xsl:attribute name="font-size">12pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="padding-top">20pt</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="__toc__topic__content">
-        <xsl:attribute name="last-line-end-indent">-22pt</xsl:attribute>
-        <xsl:attribute name="end-indent">22pt</xsl:attribute>
-        <xsl:attribute name="text-indent">-<xsl:value-of select="$toc.text-indent"/></xsl:attribute>
-        <xsl:attribute name="text-align">start</xsl:attribute>
-        <xsl:attribute name="text-align-last">justify</xsl:attribute>
-        <xsl:attribute name="font-size">
-            <xsl:variable name="level" select="count(ancestor-or-self::*[contains(@class, ' topic/topic ')])"/>
-            <xsl:choose>
-                <xsl:when test="$level = 1">12pt</xsl:when>
-                <xsl:otherwise><xsl:value-of select="$default-font-size"/></xsl:otherwise>
-            </xsl:choose>
-        </xsl:attribute>
-        <xsl:attribute name="font-weight">
-            <xsl:variable name="level" select="count(ancestor-or-self::*[contains(@class, ' topic/topic ')])"/>
-            <xsl:choose>
-                <xsl:when test="$level = 1">bold</xsl:when>
-                <xsl:otherwise>normal</xsl:otherwise>
-            </xsl:choose>
-        </xsl:attribute>
-        <xsl:attribute name="font-family">
-            <xsl:variable name="level" select="count(ancestor-or-self::*[contains(@class, ' topic/topic ')])"/>
-            <xsl:choose>
-                <xsl:when test="$level = 1">Univers</xsl:when>
-                <xsl:otherwise>serif</xsl:otherwise>
-            </xsl:choose>
-        </xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:variable name="toc.text-indent" select="$standard-indent"/>
-    <xsl:variable name="toc.toc-indent" select="'30pt'"/>
-    
-    
-    <!-- topic titles-->
-    <!-- titles are by default rendered based on the level of the title (DITA-style)
-    but iin fo/xsl/custom the mapping to outputclass is configured also-->
-
-    <!-- Heading 1 chapter title -->
-    <xsl:attribute-set name="__chapter__frontmatter__name__container">
-        <!-- contains the chapter number -->
-        <xsl:attribute name="font-family">Univers</xsl:attribute>
-        <xsl:attribute name="font-size">20pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="border-top-style">none</xsl:attribute>
-        <xsl:attribute name="border-top-width">0pt</xsl:attribute>
-        <xsl:attribute name="border-bottom-style">none</xsl:attribute>
-        <xsl:attribute name="border-bottom-width">0pt</xsl:attribute>
-        <xsl:attribute name="padding-top">10pt</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="__chapter__frontmatter__number__container">
-        <xsl:attribute name="font-size">20pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:template name="topic.title">
-        <xsl:call-template name="common.title"/>
-        <xsl:attribute name="margin-top">2pt</xsl:attribute>
-        <xsl:attribute name="margin-bottom">20pt</xsl:attribute>
-        <xsl:attribute name="font-size">20pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="padding-top">1.4pc</xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-        <xsl:attribute name="border-bottom-style">solid</xsl:attribute>
-        <xsl:attribute name="border-bottom-width">1.5pt</xsl:attribute>
-        <xsl:attribute name="margin-left"><xsl:value-of select="$side-col-width"/></xsl:attribute>
-        <xsl:attribute name="keep-with-next">always</xsl:attribute>
-        <xsl:attribute name="text-align">start</xsl:attribute>
-    </xsl:template>
-    <xsl:template name="topic.title__content">
-        <xsl:attribute name="line-height">100%</xsl:attribute>
-        <xsl:attribute name="border-left-width">0pt</xsl:attribute>
-        <xsl:attribute name="border-right-width">0pt</xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-    </xsl:template>
-    
-    <!-- heading 2 -->
-    <xsl:template name="topic.topic.title">
-        <xsl:call-template name="common.title"/>
-        <xsl:attribute name="space-before">8pt</xsl:attribute>
-        <xsl:attribute name="space-after">2pt</xsl:attribute>
-        <xsl:attribute name="font-size">16pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="padding-top">8pt</xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-        <xsl:attribute name="border-bottom-style">solid</xsl:attribute>
-        <xsl:attribute name="border-bottom-width">1pt</xsl:attribute>
-        <xsl:attribute name="border-bottom-color">black</xsl:attribute>
-    </xsl:template>
-    <xsl:template name="topic.topic.title__content">
-        <xsl:attribute name="border-left-width">0pt</xsl:attribute>
-        <xsl:attribute name="border-right-width">0pt</xsl:attribute>
-    </xsl:template>
-    
-    <!-- heading 3 -->
-    <xsl:template name="topic.topic.topic.title">
-        <xsl:call-template name="common.title"/>
-        <xsl:attribute name="space-before">6pt</xsl:attribute>
-        <xsl:attribute name="space-after">0pt</xsl:attribute>
-        <xsl:attribute name="font-size">14pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-    </xsl:template>
-    <xsl:template name="topic.topic.topic.title__content"></xsl:template>
-    
-    <!-- heading 4 -->
-    <xsl:template name="topic.topic.topic.topic.title">
-        <xsl:call-template name="common.title"/>
-        <xsl:attribute name="space-before">4pt</xsl:attribute>
-        <xsl:attribute name="font-size">11pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="start-indent"><xsl:value-of select="$side-col-width"/></xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-    </xsl:template>
-    <xsl:template name="topic.topic.topic.topic.title__content"></xsl:template>
-    
-    <!-- heading 5 -->
-    <xsl:template name="topic.topic.topic.topic.topic.title">
-        <xsl:call-template name="common.title"/>
-        <xsl:attribute name="start-indent"><xsl:value-of select="$side-col-width"/></xsl:attribute>
-        <xsl:attribute name="font-size">9pt</xsl:attribute>
-        <xsl:attribute name="font-weight">normal</xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-        <xsl:attribute name="background-color"><xsl:value-of select="$grey12"/></xsl:attribute>
-    </xsl:template>
-    <xsl:template name="topic.topic.topic.topic.topic.title__content">
-    </xsl:template>
-    
-    <!-- heading 6 -->   
-    <xsl:template name="topic.topic.topic.topic.topic.topic.title">
-        <xsl:call-template name="common.title"/>
-        <xsl:attribute name="start-indent"><xsl:value-of select="$side-col-width"/></xsl:attribute>
-        <xsl:attribute name="font-style">italic</xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-    </xsl:template>
-    <xsl:template name="topic.topic.topic.topic.topic.topic.title__content">
-    </xsl:template>
     
     <!-- indents -->
     <xsl:template name="p.AVpNormalIndent">
@@ -611,34 +460,4 @@
         <xsl:attribute name="font-style">normal</xsl:attribute>
     </xsl:attribute-set>
     
-    <!-- index -->
-    <xsl:attribute-set name="__index__letter-group">
-        <xsl:attribute name="font-family">Univers</xsl:attribute>
-        <xsl:attribute name="font-size">13pt</xsl:attribute>
-        <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="space-after">3pt</xsl:attribute>
-        <xsl:attribute name="keep-with-next.within-column">auto</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="index.term">
-        <xsl:attribute name="font-size">8pt</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="index.entry__content">
-        <xsl:attribute name="start-indent"><xsl:value-of select="$standard-indent"/></xsl:attribute>
-        <xsl:attribute name="font-size">8pt</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="__index__page__link">
-        <xsl:attribute name="font-style">normal</xsl:attribute>
-        <xsl:attribute name="page-number-treatment">link</xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="index-indents">
-        <xsl:attribute name="end-indent">5pt</xsl:attribute>
-        <xsl:attribute name="last-line-end-indent">0pt</xsl:attribute>
-        <xsl:attribute name="start-indent">0pt</xsl:attribute>
-        <xsl:attribute name="text-indent">0pt</xsl:attribute>
-        <xsl:attribute name="font-size">8pt</xsl:attribute>
-    </xsl:attribute-set>
 </xsl:stylesheet>
