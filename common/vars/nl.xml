@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  The variables are customized in en_US.xml
+  This en.xml file only needs to *be* here; it is called from the DITA-OT1.5.3 demo/fo/xsl/common/vars.xsl as well as the en_US.xml file, 
+  	but that XSL can process both
+  If this file nl.xml is not here the FO-processing fails. 
+-->
+<vars xmlns="http://www.idiominc.com/opentopic/vars">
+     <!-- empty var list -->
+</vars>
