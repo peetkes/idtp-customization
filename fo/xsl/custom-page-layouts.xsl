@@ -25,6 +25,11 @@
     
     <xsl:template name="createDefaultLayoutMasters">
         <fo:layout-master-set>
+            <!-- definition of blank -->
+            <fo:simple-page-master master-name="blank" xsl:use-attribute-sets="simple-page-master">
+                <fo:region-body region-name="region.body" display-align="center"/>
+            </fo:simple-page-master>
+            
             <!-- Frontmatter simple masters -->
             <fo:simple-page-master master-name="front-matter-first" xsl:use-attribute-sets="simple-page-master">
                 <fo:region-body xsl:use-attribute-sets="region-body__frontmatter.odd"/>
@@ -111,7 +116,7 @@
                 <fo:region-body xsl:use-attribute-sets="region-body__index.odd"/>
                 <fo:region-before region-name="odd-index-header" xsl:use-attribute-sets="region-before"/>
                 <fo:region-after region-name="odd-index-footer" xsl:use-attribute-sets="region-after"/>
-            </fo:simple-page-master>
+            </fo:simple-page-master>            
             
             <!--GLOSSARY simple masters-->
             <fo:simple-page-master master-name="glossary-first" xsl:use-attribute-sets="simple-page-master">
@@ -147,10 +152,10 @@
                 <xsl:with-param name="master-reference" select="'body'"/>
                 <xsl:with-param name="first" select="true()"/>
             </xsl:call-template>
-            <xsl:call-template name="generate-page-sequence-master">
+            <xsl:call-template name="generate-page-sequence-master-index">
                 <xsl:with-param name="master-name" select="'index-sequence'"/>
                 <xsl:with-param name="master-reference" select="'index'"/>
-                <xsl:with-param name="last" select="false()"/>
+                <xsl:with-param name="last" select="true()"/>
             </xsl:call-template>
             <xsl:call-template name="generate-page-sequence-master">
                 <xsl:with-param name="master-name" select="'front-matter'"/>
@@ -163,6 +168,38 @@
                 <xsl:with-param name="last" select="false()"/>
             </xsl:call-template>
         </fo:layout-master-set>
+    </xsl:template>
+
+    <!-- Generate a page sequence master -->
+    <xsl:template name="generate-page-sequence-master-index">
+        <xsl:param name="master-name"/>
+        <xsl:param name="master-reference"/>
+        <xsl:param name="first" select="true()"/>
+        <xsl:param name="last" select="true()"/>
+        <fo:page-sequence-master master-name="{$master-name}">
+            <fo:repeatable-page-master-alternatives>
+                <xsl:if test="$first">
+                    <fo:conditional-page-master-reference master-reference="{$master-reference}-first"
+                        odd-or-even="odd"
+                        page-position="first"/>
+                </xsl:if>
+                <xsl:if test="$last">
+                    <fo:conditional-page-master-reference master-reference="blank" blank-or-not-blank="blank"/>
+                </xsl:if>
+                <xsl:choose>
+                    <xsl:when test="$mirror-page-margins">
+                        <fo:conditional-page-master-reference master-reference="{$master-reference}-odd"
+                            odd-or-even="odd"/>
+                        <fo:conditional-page-master-reference master-reference="{$master-reference}-even"
+                            odd-or-even="even"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <fo:conditional-page-master-reference master-reference="{$master-reference}-odd"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </fo:repeatable-page-master-alternatives>
+        </fo:page-sequence-master>
+        
     </xsl:template>
     
     <!-- force page counts on different page sequences 

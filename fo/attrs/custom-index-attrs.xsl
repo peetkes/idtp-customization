@@ -5,12 +5,28 @@
     version="2.0">
     
     <!-- index -->
+    <xsl:attribute-set name="__index__label">
+        <xsl:attribute name="space-before">20pt</xsl:attribute>
+        <xsl:attribute name="space-after">20pt</xsl:attribute>
+        <xsl:attribute name="space-after.conditionality">retain</xsl:attribute>
+        <xsl:attribute name="font-size">20pt</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
+        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
+        <xsl:attribute name="span">all</xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="font-family">Univers</xsl:attribute>
+        <xsl:attribute name="border-bottom">solid black 1.5pt</xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:attribute-set name="__index__letter-group">
         <xsl:attribute name="font-family">Univers</xsl:attribute>
         <xsl:attribute name="font-size">13pt</xsl:attribute>
         <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="space-after">3pt</xsl:attribute>
         <xsl:attribute name="keep-with-next.within-column">auto</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="space-after">2pt</xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="space-before">0pt</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:attribute-set name="index.term">
@@ -18,8 +34,11 @@
     </xsl:attribute-set>
     
     <xsl:attribute-set name="index.entry__content">
-        <xsl:attribute name="start-indent"><xsl:value-of select="$standard-indent"/></xsl:attribute>
         <xsl:attribute name="font-size">8pt</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="start-indent">3.5mm</xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="text-indent">3.5mm</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:attribute-set name="__index__page__link">
@@ -29,10 +48,11 @@
     
     <xsl:attribute-set name="index-indents">
         <xsl:attribute name="end-indent">5pt</xsl:attribute>
-        <xsl:attribute name="last-line-end-indent">0pt</xsl:attribute>
-        <xsl:attribute name="start-indent">0pt</xsl:attribute>
-        <xsl:attribute name="text-indent">0pt</xsl:attribute>
         <xsl:attribute name="font-size">8pt</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="start-indent">3.5mm</xsl:attribute>
+        <xsl:attribute name="text-indent">-3.5mm</xsl:attribute>
+        <xsl:attribute name="last-line-end-indent">3.5mm</xsl:attribute>
     </xsl:attribute-set>
 
 </xsl:stylesheet>

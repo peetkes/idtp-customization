@@ -28,18 +28,22 @@
     
     <xsl:template name="topic.title">
         <xsl:call-template name="common.title"/>
-        <xsl:attribute name="margin-top">2pt</xsl:attribute>
-        <xsl:attribute name="margin-bottom">20pt</xsl:attribute>
         <xsl:attribute name="font-size">20pt</xsl:attribute>
         <xsl:attribute name="font-weight">bold</xsl:attribute>
         <xsl:attribute name="padding-top">1.4pc</xsl:attribute>
         <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-        <xsl:attribute name="border-bottom-style">solid</xsl:attribute>
-        <xsl:attribute name="border-bottom-width">1.5pt</xsl:attribute>
         <xsl:attribute name="margin-left"><xsl:value-of select="$side-col-width"/></xsl:attribute>
         <xsl:attribute name="keep-with-next">always</xsl:attribute>
         <xsl:attribute name="text-align">start</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="margin-top">0pt</xsl:attribute>
+        <xsl:attribute name="margin-bottom">0pt</xsl:attribute>
+        <xsl:attribute name="border-bottom">solid black 1.5pt</xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="space-before">2pt</xsl:attribute>
+        <xsl:attribute name="space-after">20pt</xsl:attribute>
     </xsl:template>
+
     <xsl:template name="topic.title__content">
         <xsl:attribute name="line-height">100%</xsl:attribute>
         <xsl:attribute name="border-left-width">0pt</xsl:attribute>
@@ -56,10 +60,10 @@
         <xsl:attribute name="font-weight">bold</xsl:attribute>
         <xsl:attribute name="padding-top">8pt</xsl:attribute>
         <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
-        <xsl:attribute name="border-bottom-style">solid</xsl:attribute>
-        <xsl:attribute name="border-bottom-width">1pt</xsl:attribute>
-        <xsl:attribute name="border-bottom-color">black</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="border-bottom">solid 1pt black</xsl:attribute>
     </xsl:template>
+    
     <xsl:template name="topic.topic.title__content">
         <xsl:attribute name="border-left-width">0pt</xsl:attribute>
         <xsl:attribute name="border-right-width">0pt</xsl:attribute>
@@ -84,7 +88,10 @@
         <xsl:attribute name="font-weight">bold</xsl:attribute>
         <xsl:attribute name="start-indent"><xsl:value-of select="$side-col-width"/></xsl:attribute>
         <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="space-after">0pt</xsl:attribute>
     </xsl:template>
+    
     <xsl:template name="topic.topic.topic.topic.title__content"></xsl:template>
     
     <!-- heading 5 -->
@@ -95,6 +102,10 @@
         <xsl:attribute name="font-weight">normal</xsl:attribute>
         <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
         <xsl:attribute name="background-color"><xsl:value-of select="$grey12"/></xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="padding-top">2pt</xsl:attribute>
+        <xsl:attribute name="space-before">2pt</xsl:attribute>
+        <xsl:attribute name="space-after">0pt</xsl:attribute>
     </xsl:template>
     <xsl:template name="topic.topic.topic.topic.topic.title__content">
     </xsl:template>

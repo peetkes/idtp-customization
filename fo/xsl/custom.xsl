@@ -14,8 +14,15 @@
     
     <!-- page layouts -->
     <xsl:include href="custom-page-layouts.xsl"/>
+    
     <!-- headings -->
     <xsl:include href="custom-headings.xsl"/>
+    
+    <!-- bookmarks -->
+    <xsl:include href="custom-bookmarks.xsl"/>
+    
+    <!-- index -->
+    <xsl:include href="custom-index.xsl"/>
     
     <!-- common -->
     <xsl:template name="commonattributes">
@@ -98,8 +105,8 @@
                 <xsl:with-param name="theVariableID" select="'Figure'"/>
                 <xsl:with-param name="theParameters">
                     <number>
-                        <xsl:number level="any" 
-                            count="*[contains(@class, ' topic/fig ')][child::*[contains(@class, ' topic/title ')]]" />
+                        <xsl:number level="multiple" format="1."
+                            count="bookmap/concept|*[contains(@class, ' topic/fig ')][child::*[contains(@class, ' topic/title ')]]" />
                     </number>
                     <title>
                         <xsl:apply-templates/>
@@ -110,6 +117,23 @@
     </xsl:template>
     
     <!-- table -->
+    <xsl:template match="*[contains(@class, ' topic/table ')]/*[contains(@class, ' topic/title ')]">
+        <fo:block xsl:use-attribute-sets="table.title">
+            <xsl:call-template name="commonattributes"/>
+            <xsl:call-template name="insertVariable">
+                <xsl:with-param name="theVariableID" select="'Table'"/>
+                <xsl:with-param name="theParameters">
+                    <number>
+                        <xsl:number level="multiple" count="/bookmap/concept|/*[contains(@class, ' topic/table ')]/*[contains(@class, ' topic/title ')]" format="1."/>
+                    </number>
+                    <title>
+                        <xsl:apply-templates/>
+                    </title>
+                </xsl:with-param>
+            </xsl:call-template>
+        </fo:block>
+    </xsl:template>
+    
     <!-- place title below table -->
     <xsl:template match="*[contains(@class, ' topic/table ')]">
         <xsl:variable name="scale">
@@ -355,55 +379,6 @@
                 </fo:inline>
             </xsl:otherwise>
         </xsl:choose>
-    </xsl:template>
-    
-    <!-- index -->
-    <xsl:template match="*" mode="make-index-ref">
-        <xsl:param name="idxs"/>
-        <xsl:param name="inner-text"/>
-        <xsl:param name="no-page"/>
-        <fo:block  xsl:use-attribute-sets="index.term">
-            <xsl:if test="position() = 1">
-                <xsl:attribute name="keep-with-previous">auto</xsl:attribute>
-            </xsl:if>
-            <fo:inline>
-                <xsl:choose>
-                    <xsl:when test="$useFrameIndexMarkup ne 'true'">
-                        <xsl:apply-templates select="$inner-text/node()"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:call-template name="__formatText">
-                            <xsl:with-param name="text" select="$inner-text"/>
-                        </xsl:call-template>
-                    </xsl:otherwise>
-                </xsl:choose>
-
-                <xsl:if test="$idxs">
-                    <xsl:for-each select="$idxs">
-                        <fo:inline id="{@value}"/>
-                    </xsl:for-each>
-                </xsl:if>
-                <xsl:if test="not($no-page)">
-                    <xsl:if test="$idxs and count($idxs) &gt; 0">
-                        <xsl:text> </xsl:text>
-                        <fo:index-page-citation-list>
-                            <xsl:for-each select="$idxs">
-                                <fo:index-key-reference ref-index-key="{@value}"
-                                    xsl:use-attribute-sets="__index__page__link"/>
-                            </xsl:for-each>
-                        </fo:index-page-citation-list>
-                    </xsl:if>
-                </xsl:if>
-                <xsl:if test="@no-page = 'true'">
-                    <xsl:apply-templates select="opentopic-index:see-childs"
-                        mode="index-postprocess"/>
-                </xsl:if>
-                <xsl:if test="empty(opentopic-index:index.entry)">
-                    <xsl:apply-templates select="opentopic-index:see-also-childs"
-                        mode="index-postprocess"/>
-                </xsl:if>
-            </fo:inline>
-        </fo:block>
     </xsl:template>
     
     <!-- sort glossary terms. glossary terms each in separate topic. 
