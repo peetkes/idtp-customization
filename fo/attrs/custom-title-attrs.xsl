@@ -6,7 +6,7 @@
     
     <!-- topic titles-->
     <!-- titles are by default rendered based on the level of the title (DITA-style)
-    but iin fo/xsl/custom the mapping to outputclass is configured also-->
+    but in fo/xsl/custom the mapping to outputclass is configured also-->
     
     <!-- Heading 1 chapter title -->
     <xsl:attribute-set name="__chapter__frontmatter__name__container">

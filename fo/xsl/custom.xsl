@@ -32,23 +32,76 @@
     <!-- toc -->
     <xsl:param name="tocMaximumLevel">3</xsl:param> 
     
+    <xsl:template match="opentopic-index:index.groups" mode="toc">
+        <xsl:if test="//*[contains(@class, ' topic/fig ')]/*[contains(@class, ' topic/title ' )]">
+            <fo:block xsl:use-attribute-sets="__toc__indent__index">
+                <fo:block xsl:use-attribute-sets="__toc__topic__content__index">
+                    <fo:basic-link internal-destination="{$id.index}" xsl:use-attribute-sets="__toc__link">
+                        
+                        <fo:inline xsl:use-attribute-sets="__toc__title">
+                            <xsl:call-template name="insertVariable">
+                                <xsl:with-param name="theVariableID" select="'Index'"/>
+                            </xsl:call-template>
+                        </fo:inline>
+                        
+                        <fo:inline xsl:use-attribute-sets="__toc__page-number">
+                            <fo:leader xsl:use-attribute-sets="__toc__leader"/>
+                            <fo:page-number-citation ref-id="{$id.index}"/>
+                        </fo:inline>
+                        
+                    </fo:basic-link>
+                </fo:block>
+            </fo:block>
+        </xsl:if>
+    </xsl:template>
+    
     <!-- indents -->
     <xsl:template match="*[contains(@class, ' topic/p ')]">
-        <fo:block xsl:use-attribute-sets="p">
-            <xsl:choose>
-                <xsl:when test="@outputclass = 'AVpNormalIndent'">
-                    <xsl:call-template name="p.AVpNormalIndent"/>
-                </xsl:when>
-                <xsl:when test="@outputclass = 'AVpNormalDoubleIndent'">
-                    <xsl:call-template name="p.AVpNormalDoubleIndent"/>
-                </xsl:when>
-            </xsl:choose>
-            <xsl:call-template name="commonattributes"/>
-            <xsl:apply-templates/>
-        </fo:block>
+        <xsl:choose>
+            <xsl:when test="preceding-sibling::ph[@outputclass='AVpListBullet']">
+                <fo:block>
+                    <xsl:call-template name="ph.AVpListBullet"/>
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
+            <xsl:when test="parent::*[contains(@class,' task/info ')]">
+                <fo:block>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
+            <xsl:when test="parent::*[contains(@outputclass,'AVpFAQ')]">
+                <fo:block>
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
+            <xsl:otherwise>
+                <fo:block xsl:use-attribute-sets="p">
+                    <xsl:choose>
+                        <xsl:when test="@outputclass = 'AVpNormalIndent'">
+                            <xsl:call-template name="p.AVpNormalIndent"/>
+                        </xsl:when>
+                        <xsl:when test="@outputclass = 'AVpNormalDoubleIndent'">
+                            <xsl:call-template name="p.AVpNormalDoubleIndent"/>
+                        </xsl:when>
+                    </xsl:choose>
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
     <!-- inlines -->
+    <xsl:template match="*[contains(@class,' topic/ph ')][@outputclass = 'AVcKey']">
+        <fo:inline>
+            <xsl:call-template name="commonattributes"/>
+            <xsl:call-template name="ph.AVcKey"/>
+            <xsl:apply-templates/>
+        </fo:inline>
+    </xsl:template>
+    
     <xsl:template match="*[contains(@class,' topic/ph ')][@outputclass = 'AVcCode']">
         <fo:inline>
             <xsl:call-template name="commonattributes"/>
@@ -64,8 +117,23 @@
             <xsl:apply-templates/>
         </fo:inline>
     </xsl:template>
+
+    <xsl:template match="*[contains(@class,' topic/ph ')][@outputclass = 'AVpListBullet']">
+        <fo:block>
+            <xsl:call-template name="commonattributes"/>
+            <xsl:apply-templates/>
+        </fo:block>
+    </xsl:template>
     
-    <xsl:template match="*[contains(@class,' ui-d/uicontrol ')]">
+    <xsl:template match="*[contains(@class,' topic/ph ')][@outputclass = 'AVcCommand']">
+        <fo:inline>
+            <xsl:call-template name="commonattributes"/>
+            <xsl:call-template name="ph.AVcCommand"/>
+            <xsl:apply-templates/>
+        </fo:inline>
+    </xsl:template>
+        
+    <xsl:template match="*[contains(@class,' ui-d/uicontrol ')]" priority="2">
         <!-- insert an arrow before all but the first uicontrol in a menucascade -->
         <xsl:if test="ancestor::*[contains(@class,' ui-d/menucascade ')]">
             <xsl:variable name="uicontrolcount" select="count(preceding-sibling::*[contains(@class,' ui-d/uicontrol ')])"/>
@@ -77,6 +145,9 @@
         </xsl:if>
         <fo:inline xsl:use-attribute-sets="uicontrol">
             <xsl:choose>
+                <xsl:when test="@outputclass = 'AVcKey'">
+                    <xsl:call-template name="uicontrol.AVcKey"/>
+                </xsl:when>
                 <xsl:when test="@outputclass = 'AVcField'">
                     <xsl:call-template name="uicontrol.AVcField"/>
                 </xsl:when>
@@ -127,7 +198,7 @@
                     <number>
                         <xsl:number format="1." count="bookmap/concept"/>
                         <xsl:number level="any" format="1. " from="bookmap/concept"
-                            count="/*[contains(@class, ' topic/table ')]/*[contains(@class, ' topic/title ')]"/>
+                            count="*[contains(@class, ' topic/table ')][child::*[contains(@class, ' topic/title ')]]"/>
                     </number>
                     <title>
                         <xsl:apply-templates/>
@@ -160,7 +231,7 @@
    
     <!-- FAQ formatted in table -->
     <!-- table starts on conbody and takes all content into account, not only the sections with outputclass="AVpFAQ" -->
-    <xsl:template match="*[contains(@class,' topic/body ')][*[contains(@class,' topic/section ')][@outputclass='AVpFAQ']]">
+    <xsl:template match="*[contains(@class,' topic/body ')]/*[contains(@class,' topic/section ')][@outputclass='AVpFAQ']">
         <fo:table>
             <xsl:call-template name="faq_table"/>
             <fo:table-column xsl:use-attribute-sets="faq__image__column"/>
@@ -168,10 +239,10 @@
             <fo:table-body>
                 <fo:table-row>
                     <fo:table-cell xsl:use-attribute-sets="faq__image__entry">
-                        <fo:block>
+                        <fo:block line-height="{$default-line-height}">
                             <fo:external-graphic  
                                 src="url({concat($artworkPrefix,'Customization/OpenTopic/common/artwork/',$faqIcon)})"
-                                content-height="7.5mm"/>
+                                content-height="2em" content-width="2em"/>
                         </fo:block>
                     </fo:table-cell>
                     <fo:table-cell xsl:use-attribute-sets="faq__text__entry">
@@ -183,9 +254,9 @@
     </xsl:template>
      
     <xsl:template match="*[contains(@class,' topic/section ')]/*[contains(@class,' topic/title ')][@outputclass='AVpFAQ']">
-        <fo:block xsl:use-attribute-sets="section.title">
+        <fo:block>
             <xsl:call-template name="commonattributes"/>
-            <xsl:call-template name="faq.section"></xsl:call-template>
+            <xsl:call-template name="faq.section"/>
             <xsl:apply-templates select="." mode="getTitle"/>
         </fo:block>
     </xsl:template>
@@ -220,9 +291,9 @@
                     <fo:table-body>
                         <fo:table-row>
                             <fo:table-cell xsl:use-attribute-sets="note__image__entry">
-                                <fo:block>
+                                <fo:block line-height="{$default-line-height}">
                                     <fo:external-graphic src="url({concat($artworkPrefix, $noteImagePath)})"
-                                                         content-height="7.5mm"/>
+                                        content-height="2em" content-width="2em"/>
                                 </fo:block>
                             </fo:table-cell>
                             <fo:table-cell xsl:use-attribute-sets="note__text__entry">

@@ -187,7 +187,7 @@
     <!-- numbering before section titles, glossentries not numbered -->
     <xsl:template match="*" mode="getTitle">
         <xsl:variable name="level" select="count(ancestor::*[contains(@class,' topic/topic ')])"/>
-        <xsl:if test="$level = 2 and not(contains(@class,' glossentry/glossterm '))">
+        <xsl:if test="$level = 2 and not(contains(@class,' glossentry/glossterm ') or contains(@outputclass,'AVpFAQ'))">
             <!-- only count the topics that have titles that have a @outputclass that contains 'Heading'
             to skip the frontmatter topics like copyright -->
             <xsl:number count="*[contains(@class, ' topic/topic ')][child::*[contains(@class,' topic/title ')][contains(@outputclass,'Heading')]]" 

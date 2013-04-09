@@ -1,151 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:rx="http://www.renderx.com/XSL/Extensions"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:rx="http://www.renderx.com/XSL/Extensions"
     xmlns:fo="http://www.w3.org/1999/XSL/Format"
     xmlns:opentopic-index="http://www.idiominc.com/opentopic/index"
-    xmlns:exsl="http://exslt.org/common"
-    xmlns:exslf="http://exslt.org/functions"
+    xmlns:exsl="http://exslt.org/common" xmlns:exslf="http://exslt.org/functions"
     xmlns:opentopic-func="http://www.idiominc.com/opentopic/exsl/function"
-    exclude-result-prefixes="xs opentopic-index exsl exslf opentopic-func"
-    version="2.0">
-    
+    exclude-result-prefixes="xs opentopic-index exsl exslf opentopic-func" version="2.0">
+
     <!-- index -->
-    <xsl:template match="opentopic-index:index.entry" mode="index-postprocess">
+    <xsl:template match="opentopic-index:index.entry[not(parent::opentopic-index:index.entry)]" mode="index-postprocess">
         <xsl:variable name="value" select="@value"/>
-        <xsl:variable name="isRootIndex" select="count(ancestor::opentopic-index:index.entry) = 0"/>
-        <xsl:choose>
-            <xsl:when test="opentopic-index:index.entry">
-                <fo:table rx:table-omit-initial-header="true" width="100%">
-                    <fo:table-header>
-                        <fo:table-row>
-                            <fo:table-cell>
-                                <fo:block xsl:use-attribute-sets="index-indents">
-                                    <xsl:if test="count(ancestor::opentopic-index:index.entry) > 0">
-                                        <xsl:attribute name="keep-together.within-page">always</xsl:attribute>
-                                    </xsl:if>
-                                    <xsl:variable name="following-idx" select="following-sibling::opentopic-index:index.entry[@value = $value and opentopic-index:refID]"/>
-                                    <xsl:if test="count(preceding-sibling::opentopic-index:index.entry[@value = $value]) = 0">
-                                        <xsl:choose>
-                                            <xsl:when test="$useFrameIndexMarkup ne 'true'">
-                                                <xsl:apply-templates select="opentopic-index:formatted-value/node()"/>
-                                                <fo:inline font-style="italic">
-                                                    <xsl:text> (</xsl:text>
-                                                    <xsl:value-of select="$continuedValue"/>
-                                                    <xsl:text>)</xsl:text>
-                                                </fo:inline>
-                                            </xsl:when>
-                                            <xsl:otherwise>
-                                                <xsl:call-template name="__formatText">
-                                                    <xsl:with-param name="text" select="concat(opentopic-index:formatted-value/text(), '&lt;italic&gt; (', $continuedValue, ')')"/>
-                                                </xsl:call-template>
-                                            </xsl:otherwise>
-                                        </xsl:choose>
-                                        <xsl:if test="$following-idx">
-                                            <xsl:text> </xsl:text>
-                                            <fo:index-page-citation-list>
-                                                <fo:index-key-reference ref-index-key="{$following-idx[1]/opentopic-index:refID/@value}"
-                                                    xsl:use-attribute-sets="__index__page__link"/>
-                                            </fo:index-page-citation-list>
-                                        </xsl:if>
-                                    </xsl:if>
-                                </fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        <fo:table-row>
-                            <fo:table-cell>
-                                <fo:block xsl:use-attribute-sets="index-indents" keep-with-next="always">
-                                    <xsl:if test="count(ancestor::opentopic-index:index.entry) > 0">
-                                        <xsl:attribute name="keep-together.within-page">always</xsl:attribute>
-                                    </xsl:if>
-                                    <xsl:variable name="following-idx" select="following-sibling::opentopic-index:index.entry[@value = $value and opentopic-index:refID]"/>
-                                    <xsl:if test="count(preceding-sibling::opentopic-index:index.entry[@value = $value]) = 0">
-                                        <xsl:variable name="page-setting" select=" (ancestor-or-self::opentopic-index:index.entry/@no-page | ancestor-or-self::opentopic-index:index.entry/@start-page)[last()]"/>
-                                        <xsl:variable name="isNoPage" select=" $page-setting = 'true' and name($page-setting) = 'no-page' "/>
-                                        <xsl:variable name="refID" select="opentopic-index:refID/@value"/>
-                                        
-                                        <xsl:choose>
-                                            <xsl:when test="opentopic-func:getIndexEntry($value,$refID)">
-                                                <xsl:apply-templates select="." mode="make-index-ref">
-                                                    <xsl:with-param name="idxs" select="opentopic-index:refID"/>
-                                                    <xsl:with-param name="inner-text" select="opentopic-index:formatted-value"/>
-                                                    <xsl:with-param name="no-page" select="$isNoPage"/>
-                                                    <xsl:with-param name="isRoot" select="$isRootIndex"/>
-                                                </xsl:apply-templates>
-                                            </xsl:when>
-                                            <xsl:otherwise>
-                                                <xsl:variable name="isNormalChilds">
-                                                    <xsl:for-each select="descendant::opentopic-index:index.entry">
-                                                        <xsl:variable name="currValue" select="@value"/>
-                                                        <xsl:variable name="currRefID" select="opentopic-index:refID/@value"/>
-                                                        <xsl:if test="opentopic-func:getIndexEntry($currValue,$currRefID)">
-                                                            <xsl:text>true </xsl:text>
-                                                        </xsl:if>
-                                                    </xsl:for-each>
-                                                </xsl:variable>
-                                                <xsl:if test="contains($isNormalChilds,'true ')">
-                                                    <xsl:apply-templates select="." mode="make-index-ref">
-                                                        <!--                                                    <xsl:with-param name="idxs" select="opentopic-index:refID"/>-->
-                                                        <xsl:with-param name="inner-text" select="opentopic-index:formatted-value"/>
-                                                        <xsl:with-param name="no-page" select="$isNoPage"/>
-                                                        <xsl:with-param name="isRoot" select="$isRootIndex"/>
-                                                    </xsl:apply-templates>
+        <fo:table rx:table-omit-initial-header="true" width="100%">
+            <fo:table-header>
+                <fo:table-row>
+                    <fo:table-cell>
+                        <fo:block xsl:use-attribute-sets="index-indents">
+                            <xsl:if test="count(ancestor::opentopic-index:index.entry) > 0">
+                                <xsl:attribute name="keep-together.within-page"
+                                    >always</xsl:attribute>
+                            </xsl:if>
+                            <xsl:variable name="following-idx"
+                                select="following-sibling::opentopic-index:index.entry[@value = $value and opentopic-index:refID]"/>
+                            <xsl:if test="count(preceding-sibling::opentopic-index:index.entry[@value = $value]) = 0">
+                                <xsl:choose>
+                                    <xsl:when test="$useFrameIndexMarkup ne 'true'">
+                                        <xsl:apply-templates select="opentopic-index:formatted-value/node()"/>
+                                        <fo:inline font-style="italic">
+                                            <xsl:text> (</xsl:text>
+                                            <xsl:value-of select="$continuedValue"/>
+                                            <xsl:text>)</xsl:text>
+                                        </fo:inline>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:call-template name="__formatText">
+                                            <xsl:with-param name="text" 
+                                                select="concat(opentopic-index:formatted-value/text(), '&lt;italic&gt; (', $continuedValue, ')')"/>
+                                        </xsl:call-template>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                                <xsl:if test="$following-idx">
+                                    <xsl:text> </xsl:text>
+                                    <fo:index-page-citation-list>
+                                        <fo:index-key-reference ref-index-key="{$following-idx[1]/opentopic-index:refID/@value}"
+                                            xsl:use-attribute-sets="__index__page__link"/>
+                                    </fo:index-page-citation-list>
+                                </xsl:if>
+                            </xsl:if>
+                        </fo:block>
+                    </fo:table-cell>
+                </fo:table-row>
+            </fo:table-header>
+            <fo:table-body keep-with-next.within-column="always">
+                <fo:table-row>
+                    <fo:table-cell>
+                        <fo:block xsl:use-attribute-sets="index-indents" keep-with-next="always">
+                            <xsl:if test="count(ancestor::opentopic-index:index.entry) > 0">
+                                <xsl:attribute name="keep-together.within-page">always</xsl:attribute>
+                            </xsl:if>
+                            <xsl:variable name="following-idx"
+                                select="following-sibling::opentopic-index:index.entry[@value = $value and opentopic-index:refID]"/>
+                            <xsl:if test="count(preceding-sibling::opentopic-index:index.entry[@value = $value]) = 0">
+                                <xsl:variable name="page-setting"
+                                    select=" (ancestor-or-self::opentopic-index:index.entry/@no-page | ancestor-or-self::opentopic-index:index.entry/@start-page)[last()]"/>
+                                <xsl:variable name="isNoPage"
+                                    select="($page-setting = 'true' and name($page-setting) = 'no-page')"/>
+                                <xsl:variable name="refID" select="opentopic-index:refID/@value"/>
+
+                                <xsl:choose>
+                                    <xsl:when test="opentopic-func:getIndexEntry($value,$refID)">
+                                        <xsl:apply-templates select="." mode="make-index-ref">
+                                            <xsl:with-param name="idxs" select="opentopic-index:refID"/>
+                                            <xsl:with-param name="inner-text"
+                                                select="opentopic-index:formatted-value"/>
+                                            <xsl:with-param name="no-page" select="$isNoPage"/>
+                                        </xsl:apply-templates>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:variable name="isNormalChilds">
+                                            <xsl:for-each select="descendant::opentopic-index:index.entry">
+                                                <xsl:variable name="currValue" select="@value"/>
+                                                <xsl:variable name="currRefID"
+                                                  select="opentopic-index:refID/@value"/>
+                                                <xsl:if test="opentopic-func:getIndexEntry($currValue,$currRefID)">
+                                                  <xsl:text>true </xsl:text>
                                                 </xsl:if>
-                                            </xsl:otherwise>
-                                        </xsl:choose>
-                                        <!--<xsl:apply-templates select="" mode="index-postprocess"/>-->
-                                    </xsl:if>
-                                    
-                                </fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-body>
-                    <fo:table-body>
-                        <fo:table-row>
-                            <fo:table-cell>
-                                <fo:block xsl:use-attribute-sets="index.entry__content">
-                                    <xsl:apply-templates mode="index-postprocess"/>
-                                </fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-body>
-                </fo:table>
-            </xsl:when>
-            <xsl:otherwise>
-                <!-- deepest level -->
-                <fo:block xsl:use-attribute-sets="index-indents">
-                    <xsl:if test="count(ancestor::opentopic-index:index.entry) > 0">
-                        <xsl:attribute name="keep-together.within-page">always</xsl:attribute>
-                    </xsl:if>
-                    <xsl:variable name="following-idx" select="following-sibling::opentopic-index:index.entry[@value = $value and opentopic-index:refID]"/>
-                    <xsl:if test="count(preceding-sibling::opentopic-index:index.entry[@value = $value]) = 0">
-                        <xsl:variable name="page-setting" select=" (ancestor-or-self::opentopic-index:index.entry/@no-page | ancestor-or-self::opentopic-index:index.entry/@start-page)[last()]"/>
-                        <xsl:variable name="isNoPage" select=" $page-setting = 'true' and name($page-setting) = 'no-page' "/>
-                        <xsl:apply-templates select="." mode="make-index-ref">
-                            <xsl:with-param name="idxs" select="opentopic-index:refID"/>
-                            <xsl:with-param name="inner-text" select="opentopic-index:formatted-value"/>
-                            <xsl:with-param name="no-page" select="$isNoPage"/>
-                        </xsl:apply-templates>
-                        
-                    </xsl:if>
-                    
-                </fo:block>
-                <fo:block xsl:use-attribute-sets="index.entry__content">
-                    <xsl:apply-templates mode="index-postprocess"/>
-                </fo:block>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>    
+                                            </xsl:for-each>
+                                        </xsl:variable>
+                                        <xsl:if test="contains($isNormalChilds,'true ')">
+                                            <xsl:apply-templates select="." mode="make-index-ref">
+                                                <!--<xsl:with-param name="idxs" select="opentopic-index:refID"/>-->
+                                                <xsl:with-param name="inner-text"
+                                                  select="opentopic-index:formatted-value"/>
+                                                <xsl:with-param name="no-page" select="$isNoPage"/>
+                                            </xsl:apply-templates>
+                                        </xsl:if>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                                <!--<xsl:apply-templates select="" mode="index-postprocess"/>-->
+                            </xsl:if>
+                        </fo:block>
+                    </fo:table-cell>
+                </fo:table-row>
+            </fo:table-body>
+            <fo:table-body>
+                <fo:table-row>
+                    <fo:table-cell>
+                        <fo:block xsl:use-attribute-sets="index.entry__content">
+                            <xsl:apply-templates mode="index-postprocess"/>
+                        </fo:block>
+                    </fo:table-cell>
+                </fo:table-row>
+            </fo:table-body>
+        </fo:table>
+    </xsl:template>
+
+    <xsl:template match="opentopic-index:index.entry[parent::opentopic-index:index.entry]" mode="index-postprocess">
+        <xsl:variable name="value" select="@value"/>
+        <fo:block xsl:use-attribute-sets="index-indent-indents">
+            <xsl:if test="count(ancestor::opentopic-index:index.entry) > 0">
+                <xsl:attribute name="keep-together.within-page">always</xsl:attribute>
+            </xsl:if>
+            <xsl:variable name="following-idx" select="following-sibling::opentopic-index:index.entry[@value = $value and opentopic-index:refID]"/>
+            <xsl:if test="count(preceding-sibling::opentopic-index:index.entry[@value = $value]) = 0">
+                <xsl:variable name="page-setting"
+                    select=" (ancestor-or-self::opentopic-index:index.entry/@no-page | ancestor-or-self::opentopic-index:index.entry/@start-page)[last()]"/>
+                <xsl:variable name="isNoPage"
+                    select=" $page-setting = 'true' and name($page-setting) = 'no-page' "/>
+                <xsl:apply-templates select="." mode="make-index-ref">
+                    <xsl:with-param name="idxs" select="opentopic-index:refID"/>
+                    <xsl:with-param name="inner-text" select="opentopic-index:formatted-value"/>
+                    <xsl:with-param name="no-page" select="$isNoPage"/>
+                </xsl:apply-templates>
+
+            </xsl:if>
+       </fo:block>
+       <fo:block xsl:use-attribute-sets="index.entry__content">
+           <xsl:apply-templates mode="index-postprocess"/>
+       </fo:block>
+    </xsl:template>
 
     <xsl:template match="*" mode="make-index-ref">
         <xsl:param name="idxs"/>
         <xsl:param name="inner-text"/>
         <xsl:param name="no-page"/>
-        <xsl:param name="isRoot" select="false()"/>
-        
-        <fo:block  xsl:use-attribute-sets="index.term">
+
+        <fo:block xsl:use-attribute-sets="index.term">
             <xsl:if test="position() = 1">
                 <xsl:attribute name="keep-with-previous">auto</xsl:attribute>
             </xsl:if>
@@ -160,23 +159,14 @@
                         </xsl:call-template>
                     </xsl:otherwise>
                 </xsl:choose>
-                
+
                 <xsl:if test="$idxs">
                     <xsl:for-each select="$idxs">
                         <fo:inline id="{@value}"/>
                     </xsl:for-each>
                 </xsl:if>
-                
-                <xsl:if test="not($no-page)">
-                    <xsl:if test="$idxs and count($idxs) &gt; 1 and not($isRoot)">
-                        <xsl:text>[ ]</xsl:text>
-                        <fo:index-page-citation-list>
-                            <xsl:for-each select="$idxs">
-                                <fo:index-key-reference ref-index-key="{@value}"
-                                    xsl:use-attribute-sets="__index__page__link"/>
-                            </xsl:for-each>
-                        </fo:index-page-citation-list>
-                    </xsl:if>
+
+                <xsl:if test="not($no-page) and empty(opentopic-index:index.entry)">
                     <xsl:if test="$idxs and count($idxs) &gt; 0">
                         <xsl:text> </xsl:text>
                         <fo:index-page-citation-list>
@@ -198,5 +188,5 @@
             </fo:inline>
         </fo:block>
     </xsl:template>
-    
+
 </xsl:stylesheet>

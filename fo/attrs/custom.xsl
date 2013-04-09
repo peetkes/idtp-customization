@@ -20,6 +20,8 @@
     <!-- mirrored pages TRUE -->
     <xsl:variable name="mirror-page-margins" select="true()"/>
     
+    <xsl:variable name="line-height" select="$default-line-height"/>
+    
     <!-- do not start all chapters on even pages
     refer also to custom-page-layouts.xsl, template name force_page_counts-->
     <xsl:attribute-set name="__force__page__count">
@@ -34,12 +36,13 @@
     <!-- standard indent -->
     <xsl:variable name="standard-indent">6mm</xsl:variable>
     <xsl:variable name="double-indent">12mm</xsl:variable>
-    
+
     <!-- paragraph-like blocks -->
     <xsl:attribute-set name="common.block">
         <xsl:attribute name="space-before">1pt</xsl:attribute>
         <xsl:attribute name="space-after">1pt</xsl:attribute>
     </xsl:attribute-set>
+    
     <xsl:template name="common.block">
         <xsl:attribute name="space-before">1pt</xsl:attribute>
         <xsl:attribute name="space-after">1pt</xsl:attribute>
@@ -74,8 +77,9 @@
     
     <xsl:attribute-set name="pagenum">
         <xsl:attribute name="font-weight">bold</xsl:attribute>
+        <xsl:attribute name="font-size">10pt</xsl:attribute>
     </xsl:attribute-set>
-    
+        
     <!-- font -->
    <xsl:attribute-set name="__fo__root">   
         <xsl:attribute name="font-size"><xsl:value-of select="$default-font-size"/></xsl:attribute>
@@ -122,6 +126,24 @@
     <xsl:attribute-set name="__frontmatter__subtitle" use-attribute-sets="common.title">
         <xsl:attribute name="font-size">24pt</xsl:attribute>
     </xsl:attribute-set>
+ 
+    <!-- TOC -->
+    <xsl:attribute-set name="__toc__indent__index">
+        <xsl:attribute name="start-indent"><xsl:value-of select="$side-col-width"/> + <xsl:value-of select="$toc.text-indent"/></xsl:attribute>
+        <xsl:attribute name="space-before">10pt</xsl:attribute>
+        <xsl:attribute name="space-after">10pt</xsl:attribute>
+        <xsl:attribute name="start-indent">
+            <xsl:variable name="level" select="1"/>
+            <xsl:value-of select="concat($side-col-width, ' + (', string($level - 1), ' * ', $toc.toc-indent, ') + ', $toc.text-indent)"/>
+        </xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="__toc__topic__content__index" use-attribute-sets="__toc__topic__content">
+        <xsl:attribute name="font-family">Univers</xsl:attribute>
+        <xsl:attribute name="font-size">12pt</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
+    </xsl:attribute-set>
+    
     
     <!-- indents -->
     <xsl:template name="p.AVpNormalIndent">
@@ -138,7 +160,19 @@
     </xsl:template>
     <xsl:template name="ph.AVcCode">
         <xsl:attribute name="font-family">Monospaced</xsl:attribute>
-    </xsl:template>   
+    </xsl:template>  
+    <xsl:template name="ph.AVcKey">
+    </xsl:template>  
+    <xsl:template name="ph.AVcCommand">
+        <xsl:attribute name="font-weigth">bold</xsl:attribute>
+    </xsl:template>  
+    
+    <xsl:template name="ph.AVpListBullet">
+        <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+    </xsl:template>  
+    
+    <xsl:template name="uicontrol.AVcKey">
+    </xsl:template>
     <xsl:template name="uicontrol.AVcField">
         <xsl:attribute name="font-weight">bold</xsl:attribute>
     </xsl:template>
@@ -147,7 +181,6 @@
     </xsl:template>
     <xsl:template name="i.AVcEmphasis">
         <xsl:attribute name="font-weight">bold</xsl:attribute>
-        <xsl:attribute name="font-style">italic</xsl:attribute>
     </xsl:template>
     <xsl:template name="xref.AVcSeeAlso">
         <xsl:attribute name="font-style">italic</xsl:attribute>
@@ -165,14 +198,27 @@
         <xsl:attribute name="font-family">Monospaced</xsl:attribute>
     </xsl:attribute-set>
     
+    <xsl:attribute-set name="pre" use-attribute-sets="base-font common.block">
+        <xsl:attribute name="white-space-treatment">preserve</xsl:attribute>
+        <xsl:attribute name="white-space-collapse">true</xsl:attribute>
+        <xsl:attribute name="linefeed-treatment">preserve</xsl:attribute>
+        <xsl:attribute name="wrap-option">no-wrap</xsl:attribute>
+        <xsl:attribute name="font-family">monospace</xsl:attribute>
+        <xsl:attribute name="line-height">100%</xsl:attribute>
+        <xsl:attribute name="space-before">1pt</xsl:attribute>
+        <xsl:attribute name="space-after">1pt</xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:attribute-set name="codeblock" use-attribute-sets="common.block">
         <xsl:attribute name="font-family">Monospaced</xsl:attribute>
         <xsl:attribute name="font-size">8pt</xsl:attribute>
         <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
         <xsl:attribute name="start-indent"><xsl:value-of select="$standard-indent"/></xsl:attribute>
         <xsl:attribute name="end-indent">0pt</xsl:attribute>
-        <xsl:attribute name="padding">6pt</xsl:attribute>
+        <xsl:attribute name="padding">0pt</xsl:attribute>
         <xsl:attribute name="background-color">white</xsl:attribute>
+        <xsl:attribute name="space-before">1pt</xsl:attribute>
+        <xsl:attribute name="space-after">1pt</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:attribute-set name="codeblock__top">
@@ -186,16 +232,42 @@
     </xsl:attribute-set>
  
     <!-- lists -->
+    <xsl:attribute-set name="ul" use-attribute-sets="common.block">
+        <xsl:attribute name="provisional-distance-between-starts"><xsl:value-of select="$standard-indent"/></xsl:attribute>
+        <xsl:attribute name="provisional-label-separation">1mm</xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:attribute-set name="ul.li">
-        <xsl:attribute name="space-after">1.5pt</xsl:attribute>
-        <xsl:attribute name="space-before">1.5pt</xsl:attribute>
-        <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="space-after">0pt</xsl:attribute>
+        <xsl:attribute name="space-before">0pt</xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="keep-with-previous.within-page">auto</xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="ul.li__label">
+        <xsl:attribute name="end-indent">label-end()</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="keep-together.within-line">auto</xsl:attribute>
+        <xsl:attribute name="keep-with-next.within-line">auto</xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="ul.li__label__content">
+        <!--<xsl:attribute name="font-size">12pt</xsl:attribute>-->
+        <xsl:attribute name="text-align">start</xsl:attribute>
+    </xsl:attribute-set>
+        
+    <xsl:attribute-set name="ol" use-attribute-sets="common.block">
+        <xsl:attribute name="provisional-distance-between-starts"><xsl:value-of select="$standard-indent"/></xsl:attribute>
+        <xsl:attribute name="provisional-label-separation">1mm</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:attribute-set name="ol.li">
-        <xsl:attribute name="space-after">1.5pt</xsl:attribute>
-        <xsl:attribute name="space-before">1.5pt</xsl:attribute>
-        <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+        <!-- changed -->
+        <xsl:attribute name="space-after">0pt</xsl:attribute>
+        <xsl:attribute name="space-before">0pt</xsl:attribute>
+        <!-- added -->
+        <xsl:attribute name="keep-with-previous.within-page">auto</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:attribute-set name="ol.li__label__content">
@@ -205,11 +277,6 @@
     
     <xsl:attribute-set name="ol.li__body">
         <xsl:attribute name="start-indent"><xsl:value-of select="$standard-indent"/></xsl:attribute>
-    </xsl:attribute-set>
-    
-    <xsl:attribute-set name="ul.li__label__content">
-        <xsl:attribute name="font-size">12pt</xsl:attribute>
-        <xsl:attribute name="text-align">start</xsl:attribute>
     </xsl:attribute-set>
     
     <!-- figures (AVpCaptionText) -->
@@ -295,15 +362,35 @@
     <xsl:attribute-set name="table__tableframe__right" use-attribute-sets="standard-border-atts"/>
     <xsl:attribute-set name="table__tableframe__left" use-attribute-sets="standard-border-atts"/>
     
-    <xsl:attribute-set name="thead.row.entry">
+    <xsl:attribute-set name="custom.table.body.entry">
+        <xsl:attribute name="padding-left">3pt</xsl:attribute>
+        <xsl:attribute name="padding-right">3pt</xsl:attribute>
+        <xsl:attribute name="padding-top">1pt</xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="custom.table.head.entry">
+        <xsl:attribute name="padding-left">3pt</xsl:attribute>
+        <xsl:attribute name="padding-right">3pt</xsl:attribute>
+        <xsl:attribute name="padding-top">2pt</xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="thead.row.entry" use-attribute-sets="custom.table.head.entry">
         <!--head cell-->
         <xsl:attribute name="background-color"><xsl:value-of select="$grey10"/></xsl:attribute>
     </xsl:attribute-set>
     
-    <xsl:attribute-set name="tbody.row.entry">
+    <xsl:attribute-set name="thead.row.entry__content" use-attribute-sets="AVpTableHeading">
+        <!--head cell contents-->
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="tbody.row.entry" use-attribute-sets="custom.table.body.entry">
         <!--body cell-->
         <xsl:attribute name="background-color"><xsl:value-of select="$grey05"/></xsl:attribute>
         <xsl:attribute name="border"><xsl:value-of select="$standard-border"/></xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="tbody.row.entry__content" use-attribute-sets="AVpTableText">
+        <!--body cell contents-->
     </xsl:attribute-set>
     
     <xsl:attribute-set name="table.row">
@@ -319,6 +406,24 @@
         <xsl:attribute name="margin-left">2mm</xsl:attribute>
     </xsl:template>
     
+    <xsl:attribute-set name="AVpTableHeading">
+        <xsl:attribute name="font-family">Univers</xsl:attribute>
+        <xsl:attribute name="font-size">8pt</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
+        <xsl:attribute name="space-before">0pt</xsl:attribute>
+        <xsl:attribute name="space-after">0pt</xsl:attribute>
+        <xsl:attribute name="space-after.conditionality">retain</xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="AVpTableText">
+        <xsl:attribute name="font-family">serif</xsl:attribute>
+        <xsl:attribute name="font-size">8pt</xsl:attribute>
+        <xsl:attribute name="space-before">1pt</xsl:attribute>
+        <xsl:attribute name="space-before.conditionality">retain</xsl:attribute>
+        <xsl:attribute name="space-after">1pt</xsl:attribute>
+        <xsl:attribute name="space-after.conditionality">retain</xsl:attribute>
+    </xsl:attribute-set>
+    
     <!-- FAQ -->
     <xsl:template name="common.note.block">
         <xsl:attribute name="space-before">2pt</xsl:attribute>
@@ -332,6 +437,9 @@
 
     <xsl:template name="faq.section">
         <xsl:attribute name="margin-left">0pt</xsl:attribute>
+        <xsl:attribute name="space-before">2pt</xsl:attribute>
+        <xsl:attribute name="space-after">2pt</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
     </xsl:template>
     
     <xsl:template name="faq_table">
@@ -362,7 +470,7 @@
     </xsl:attribute-set>  
     
     <xsl:attribute-set name="note__image__entry">
-        <xsl:attribute name="padding-right">5pt</xsl:attribute>
+        <xsl:attribute name="padding-right">0pt</xsl:attribute>
         <xsl:attribute name="start-indent">0pt</xsl:attribute>
     </xsl:attribute-set>
     

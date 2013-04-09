@@ -195,7 +195,7 @@ See the accompanying license.txt file for applicable licenses.
 
     <!-- Text to use for table titles. Renders as part of <table>/<title> 
          elements. -->
-    <variable id="Table">Tabel <param ref-name="number"/>: <param ref-name="title"/></variable>
+    <variable id="Table">Tabel <param ref-name="number"/><param ref-name="title"/></variable>
 
     <!-- Text to use for related links label.
          Renders as part of <related-links> element. -->
