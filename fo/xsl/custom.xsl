@@ -105,8 +105,9 @@
                 <xsl:with-param name="theVariableID" select="'Figure'"/>
                 <xsl:with-param name="theParameters">
                     <number>
-                        <xsl:number level="multiple" format="1."
-                            count="bookmap/concept|*[contains(@class, ' topic/fig ')][child::*[contains(@class, ' topic/title ')]]" />
+                        <xsl:number format="1." count="bookmap/concept"/>
+                        <xsl:number level="any" format="1. " from="bookmap/concept"
+                            count="*[contains(@class, ' topic/fig ')][child::*[contains(@class, ' topic/title ')]]" />
                     </number>
                     <title>
                         <xsl:apply-templates/>
@@ -124,7 +125,9 @@
                 <xsl:with-param name="theVariableID" select="'Table'"/>
                 <xsl:with-param name="theParameters">
                     <number>
-                        <xsl:number level="multiple" count="/bookmap/concept|/*[contains(@class, ' topic/table ')]/*[contains(@class, ' topic/title ')]" format="1."/>
+                        <xsl:number format="1." count="bookmap/concept"/>
+                        <xsl:number level="any" format="1. " from="bookmap/concept"
+                            count="/*[contains(@class, ' topic/table ')]/*[contains(@class, ' topic/title ')]"/>
                     </number>
                     <title>
                         <xsl:apply-templates/>
