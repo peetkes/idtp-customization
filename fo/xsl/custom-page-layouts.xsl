@@ -23,6 +23,25 @@
     <xsl:variable name="page-margin-inside">25mm</xsl:variable>
     <xsl:variable name="page-margin-outside">15mm</xsl:variable>
     
+
+    <xsl:attribute-set name="region-body__frontmatter.first" use-attribute-sets="region-body.first">
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="region-body.first">
+        <xsl:attribute name="margin-top">
+            <xsl:value-of select="$page-margin-top"/>
+        </xsl:attribute>
+        <xsl:attribute name="margin-bottom">
+            <xsl:value-of select="$page-margin-bottom"/>
+        </xsl:attribute>
+        <xsl:attribute name="margin-left">
+            <xsl:value-of select="$page-margin-outside"/>
+        </xsl:attribute>
+        <xsl:attribute name="margin-right">
+            <xsl:value-of select="$page-margin-outside"/>
+        </xsl:attribute>
+    </xsl:attribute-set>
+
     <xsl:template name="createDefaultLayoutMasters">
         <fo:layout-master-set>
             <!-- definition of blank -->
@@ -32,7 +51,7 @@
             
             <!-- Frontmatter simple masters -->
             <fo:simple-page-master master-name="front-matter-first" xsl:use-attribute-sets="simple-page-master">
-                <fo:region-body xsl:use-attribute-sets="region-body__frontmatter.odd"/>
+                <fo:region-body xsl:use-attribute-sets="region-body__frontmatter.first"/>
             </fo:simple-page-master>
             <fo:simple-page-master master-name="front-matter-last" xsl:use-attribute-sets="simple-page-master">
                 <fo:region-body xsl:use-attribute-sets="region-body__frontmatter.even"/>
@@ -218,7 +237,6 @@
         </xsl:attribute>
     </xsl:template>
     
-    
     <!-- frontmatter -->
     <xsl:template name="createFrontMatter_1.0">
         <fo:page-sequence master-reference="front-matter">
@@ -246,28 +264,29 @@
                         </xsl:choose>
                     </fo:block>
                     
-                    <!-- logo: absoluut gepositioneerd op 220mm 125mm. 
-                      -  logobestand staat in artwork-folder
-                      -  tekst erboven komt uit vars.xsl "logoCaption"
-                      -  font-size 7pt
-                    -->
-                    <fo:block-container absolute-position="fixed" top="220mm" left="125mm">
-                        <fo:block margin-left="20mm" font-size="7pt" font-family="Sans">
-                            <xsl:call-template name="insertVariable">
-                                <xsl:with-param name="theVariableID" select="'logoCaption'"/>
-                            </xsl:call-template>
-                        </fo:block>
-                        <fo:block>
-                            <fo:external-graphic  
-                                src="url({concat($artworkPrefix,'Customization/OpenTopic/common/artwork/',$frontpageLogo)})"
-                                content-width="55mm"/>
-                        </fo:block>
-                    </fo:block-container>
                     <fo:block xsl:use-attribute-sets="__frontmatter__owner">
                         <xsl:apply-templates select="$map//*[contains(@class,' bookmap/bookmeta ')]"/>
                     </fo:block>
                     <!-- set the subtitle -->
                     <xsl:apply-templates select="$map//*[contains(@class,' bookmap/booktitlealt ')]"/>              
+
+                    <!-- logo: absoluut gepositioneerd op 220mm 125mm. 
+                      -  logobestand staat in artwork-folder
+                      -  tekst erboven komt uit vars.xsl "logoCaption"
+                      -  font-size 7pt
+                    -->
+                    <fo:block-container absolute-position="fixed" top="220mm" left="146.1mm" width="50mm">
+                        <fo:block xsl:use-attribute-sets="__frontmatter__logocaption">
+                            <xsl:call-template name="insertVariable">
+                                <xsl:with-param name="theVariableID" select="'logoCaption'"/>
+                            </xsl:call-template>
+                        </fo:block>
+                        <fo:block>
+                            <fo:external-graphic text-align="left" 
+                                src="url({concat($artworkPrefix,'Customization/OpenTopic/common/artwork/',$frontpageLogo)})"
+                                content-width="48.9mm" content-height="scale-down-to-fit"/>
+                        </fo:block>
+                    </fo:block-container>
                 </fo:block>
                 <!--<xsl:call-template name="createPreface"/>-->
             </fo:flow>

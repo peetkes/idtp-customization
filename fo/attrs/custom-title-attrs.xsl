@@ -26,6 +26,19 @@
         <xsl:attribute name="font-weight">bold</xsl:attribute>
     </xsl:attribute-set>
     
+    <xsl:attribute-set name="topic.title" use-attribute-sets="common.title">
+        <xsl:attribute name="border-bottom">1.5pt solid black</xsl:attribute>
+        <xsl:attribute name="space-before">2pt</xsl:attribute>
+        <xsl:attribute name="space-after">20pt</xsl:attribute>
+        <xsl:attribute name="font-size">20pt</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
+        <xsl:attribute name="padding-top">1.4pc</xsl:attribute>
+        <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
+        <xsl:attribute name="margin-left"><xsl:value-of select="$side-col-width"/></xsl:attribute>
+        <xsl:attribute name="margin-top">0pt</xsl:attribute>
+        <xsl:attribute name="margin-bottom">0pt</xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:template name="topic.title">
         <xsl:call-template name="common.title"/>
         <xsl:attribute name="font-size">20pt</xsl:attribute>
@@ -104,7 +117,7 @@
         <xsl:attribute name="background-color"><xsl:value-of select="$grey12"/></xsl:attribute>
         <!-- added -->
         <xsl:attribute name="padding-top">2pt</xsl:attribute>
-        <xsl:attribute name="space-before">2pt</xsl:attribute>
+        <xsl:attribute name="space-before">4pt</xsl:attribute>
         <xsl:attribute name="space-after">0pt</xsl:attribute>
     </xsl:template>
     <xsl:template name="topic.topic.topic.topic.topic.title__content">

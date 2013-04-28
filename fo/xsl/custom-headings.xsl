@@ -7,7 +7,12 @@
     
     <!-- chapter-first pagina -->
     <xsl:template name="processTopicChapter" >
-        <fo:page-sequence master-reference="body-sequence" xsl:use-attribute-sets="__force__page__count">
+        <xsl:variable name="id" select="@id"/>
+        <xsl:comment>id = <xsl:value-of select="@id"/></xsl:comment>
+        <xsl:variable name="isFrontMatter" select="if (//*[@id eq $id][1][contains(@class, ' topic/notices ')]) then true() else false()"/>
+        
+        <fo:page-sequence xsl:use-attribute-sets="__force__page__count">
+            <xsl:attribute name="master-reference" select="if ($isFrontMatter) then 'front-matter' else 'body-sequence'"/>
             <xsl:call-template name="startPageNumbering"/>
             <xsl:call-template name="insertBodyStaticContents"/>
             <fo:flow flow-name="xsl-region-body">
@@ -67,7 +72,6 @@
                                     <fo:inline xsl:use-attribute-sets="__chapter__frontmatter__number__container">
                                         <xsl:apply-templates select="key('map-id', @id)[1]" mode="topicTitleNumber"/>
                                     </fo:inline>
-                                    <xsl:text> </xsl:text>
                                 </number>
                             </xsl:with-param>
                         </xsl:call-template>
@@ -108,7 +112,8 @@
                         </xsl:call-template>
                     </fo:online>
                 </xsl:when>
-                <xsl:when test="$type = 'notices'">
+                <xsl:when test="$type = 'notices'"/>
+                <xsl:when test="$type = 'notices.org'">
                     <fo:inline xsl:use-attribute-sets="__chapter__frontmatter__name__container">
                         <xsl:call-template name="insertVariable">
                             <xsl:with-param name="theVariableID" select="'Notices title'"/>

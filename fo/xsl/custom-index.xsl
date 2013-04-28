@@ -14,7 +14,7 @@
             <fo:table-header>
                 <fo:table-row>
                     <fo:table-cell>
-                        <fo:block xsl:use-attribute-sets="index-indents">
+                        <fo:block xsl:use-attribute-sets="index-indents index-continued">
                             <xsl:if test="count(ancestor::opentopic-index:index.entry) > 0">
                                 <xsl:attribute name="keep-together.within-page"
                                     >always</xsl:attribute>

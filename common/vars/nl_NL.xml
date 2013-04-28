@@ -191,7 +191,7 @@ See the accompanying license.txt file for applicable licenses.
 
     <!-- Text to use for figure titles. Renders as part of <fig>/<title>
           elements. -->
-    <variable id="Figure">Afbeelding <param ref-name="number"/>: <param ref-name="title"/></variable>
+    <variable id="Figure">Afbeelding <param ref-name="number"/><param ref-name="title"/></variable>
 
     <!-- Text to use for table titles. Renders as part of <table>/<title> 
          elements. -->
@@ -259,15 +259,15 @@ See the accompanying license.txt file for applicable licenses.
     <variable id="This link">deze link</variable>
     
     <!-- 
-       example.png: light bulb for note@type="tip" (AVpExample)
-       important.png: triangle for note@type="attention" (AVpAttention)
-       NB.png: square with letters NB for note@type="" (AVpNB)
+       voorbeeld_250.png: circle with i for note@type="tip" (AVpExample)
+       driehoek_250.png: triangle for note@type="attention" (AVpAttention)
+       letop_250.png: square with right hook for note@type="" (AVpNB)
     -->
     <!-- Image path to use for a note of "note" type. -->
-    <variable id="note Note Image Path">Customization/OpenTopic/common/artwork/NB.png</variable>
+    <variable id="note Note Image Path">Customization/OpenTopic/common/artwork/letop_250.png</variable>
 
     <!-- Image path to use for a note of "attention" type. -->
-     <variable id="attention Note Image Path">Customization/OpenTopic/common/artwork/important.png</variable>
+     <variable id="attention Note Image Path">Customization/OpenTopic/common/artwork/driehoek_250.png</variable>
 
     <!-- Image path to use for a note of "caution" type. -->
      <variable id="caution Note Image Path">Configuration/OpenTopic/cfg/common/artwork/warning.gif</variable>
@@ -288,7 +288,7 @@ See the accompanying license.txt file for applicable licenses.
     <variable id="restriction Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
 
     <!-- Image path to use for a note of "tip" type. -->
-     <variable id="tip Note Image Path">Customization/OpenTopic/common/artwork/example.png</variable>
+     <variable id="tip Note Image Path">Customization/OpenTopic/common/artwork/voorbeeld_250.png</variable>
 
     <!-- Image path to use for a note of "other" type. -->
     <variable id="other Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
@@ -422,4 +422,9 @@ See the accompanying license.txt file for applicable licenses.
      <variable id="#menucascade-separator">&#xA0;&#x3E; </variable>
      <variable id="#quote-start">“</variable>
      <variable id="#quote-end">”</variable>
+    
+    <variable id="AVpRefCondition">Voorwaarden: </variable>
+    <variable id="AVpRefFromScreen">Vanuit: </variable>
+    <variable id="AVpRefToScreen">Opent: </variable>
+    <variable id="AVpRefKey">Sneltoets: </variable>
 </vars>

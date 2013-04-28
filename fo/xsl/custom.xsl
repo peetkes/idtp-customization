@@ -31,6 +31,12 @@
     
     <!-- toc -->
     <xsl:param name="tocMaximumLevel">3</xsl:param> 
+    <xsl:param name="chapterLayout">
+        <xsl:choose>
+            <xsl:when test="$antArgsChapterLayout!=''"><xsl:value-of select="$antArgsChapterLayout"/></xsl:when>
+            <xsl:otherwise>BASIC</xsl:otherwise>
+        </xsl:choose>
+    </xsl:param>
     
     <xsl:template match="opentopic-index:index.groups" mode="toc">
         <xsl:if test="//*[contains(@class, ' topic/fig ')]/*[contains(@class, ' topic/title ' )]">
@@ -55,9 +61,90 @@
         </xsl:if>
     </xsl:template>
     
+    <xsl:template match="*[contains(@class, ' topic/topic ')]" mode="toc">
+        <xsl:param name="include"/>
+        <xsl:variable name="topicLevel" as="xs:integer">
+            <xsl:apply-templates select="." mode="get-topic-level"/>
+        </xsl:variable>
+        <xsl:if test="$topicLevel &lt; $tocMaximumLevel">
+            <xsl:variable name="mapTopicref" select="key('map-id', @id)[1]"/>
+            <xsl:choose>
+                <!-- In a future version, suppressing Notices in the TOC should not be hard-coded. -->
+                <xsl:when test="$mapTopicref/self::*[contains(@class, ' bookmap/notices ')]"/>
+                <xsl:when test="$mapTopicref[@toc = 'yes' or not(@toc)] or
+                    (not($mapTopicref) and $include = 'true')">
+                    <fo:block xsl:use-attribute-sets="__toc__indent">
+                        <xsl:variable name="tocItemContent">
+                            <fo:basic-link xsl:use-attribute-sets="__toc__link">
+                                <xsl:attribute name="internal-destination">
+                                    <xsl:call-template name="generate-toc-id"/>
+                                </xsl:attribute>
+                                <xsl:apply-templates select="$mapTopicref" mode="tocPrefix"/>
+                                <fo:inline xsl:use-attribute-sets="__toc__title">
+                                    <xsl:call-template name="getNavTitle" />
+                                </fo:inline>
+                                <fo:inline xsl:use-attribute-sets="__toc__page-number">
+                                    <fo:leader xsl:use-attribute-sets="__toc__leader"/>
+                                    <fo:page-number-citation>
+                                        <xsl:attribute name="ref-id">
+                                            <xsl:call-template name="generate-toc-id"/>
+                                        </xsl:attribute>
+                                    </fo:page-number-citation>
+                                </fo:inline>
+                            </fo:basic-link>
+                        </xsl:variable>
+                        <xsl:choose>
+                            <xsl:when test="not($mapTopicref)">
+                                <xsl:apply-templates select="." mode="tocText">
+                                    <xsl:with-param name="tocItemContent" select="$tocItemContent"/>
+                                    <xsl:with-param name="currentNode" select="."/>
+                                </xsl:apply-templates>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:apply-templates select="$mapTopicref" mode="tocText">
+                                    <xsl:with-param name="tocItemContent" select="$tocItemContent"/>
+                                    <xsl:with-param name="currentNode" select="."/>
+                                </xsl:apply-templates>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </fo:block>
+                    <xsl:apply-templates mode="toc">
+                        <xsl:with-param name="include" select="'true'"/>
+                    </xsl:apply-templates>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:apply-templates mode="toc">
+                        <xsl:with-param name="include" select="'true'"/>
+                    </xsl:apply-templates>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:if>
+    </xsl:template>
+       
     <!-- indents -->
     <xsl:template match="*[contains(@class, ' topic/p ')]">
         <xsl:choose>
+            <xsl:when test="preceding-sibling::ph[@outputclass='AVpAttention']">
+                <fo:block>
+                    <xsl:call-template name="ph.AVpAttention"/>
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
+            <xsl:when test="preceding-sibling::ph[@outputclass='AVpExample']">
+                <fo:block>
+                    <xsl:call-template name="ph.AVpExample"/>
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
+            <xsl:when test="preceding-sibling::ph[@outputclass='AVpNB']">
+                <fo:block>
+                    <xsl:call-template name="ph.AVpNB"/>
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
             <xsl:when test="preceding-sibling::ph[@outputclass='AVpListBullet']">
                 <fo:block>
                     <xsl:call-template name="ph.AVpListBullet"/>
@@ -73,6 +160,24 @@
             <xsl:when test="parent::*[contains(@outputclass,'AVpFAQ')]">
                 <fo:block>
                     <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
+            <xsl:when test="@outputclass = 'AVpRefCondition'">
+                <fo:block xsl:use-attribute-sets="p.AVpRefCondition">
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:call-template name="insertVariable">
+                        <xsl:with-param name="theVariableID" select="@outputclass"/>
+                    </xsl:call-template>                                
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
+            <xsl:when test="@outputclass = ('AVpRefFromScreen','AVpRefToScreen','AVpRefKey')">
+                <fo:block xsl:use-attribute-sets="p">
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:call-template name="insertVariable">
+                        <xsl:with-param name="theVariableID" select="@outputclass"/>
+                    </xsl:call-template>                                
                     <xsl:apply-templates/>
                 </fo:block>
             </xsl:when>
@@ -138,9 +243,11 @@
         <xsl:if test="ancestor::*[contains(@class,' ui-d/menucascade ')]">
             <xsl:variable name="uicontrolcount" select="count(preceding-sibling::*[contains(@class,' ui-d/uicontrol ')])"/>
             <xsl:if test="$uicontrolcount &gt; 0">
-                <xsl:call-template name="insertVariable">
-                    <xsl:with-param name="theVariableID" select="'#menucascade-separator'"/>
-                </xsl:call-template>
+                <fo:inline xsl:use-attribute-sets="menucascade-separator">
+                    <xsl:call-template name="insertVariable">
+                        <xsl:with-param name="theVariableID" select="'#menucascade-separator'"/>
+                    </xsl:call-template>
+                </fo:inline>
             </xsl:if>
         </xsl:if>
         <fo:inline xsl:use-attribute-sets="uicontrol">
@@ -160,7 +267,7 @@
         </fo:inline>
     </xsl:template>
     
-    <xsl:template match="*[contains(@class,'  topic/xref  ')][@outputclass = 'AVcCommand']">
+    <xsl:template match="*[contains(@class,' topic/xref ')][@outputclass = 'AVcCommand']">
         <fo:inline>
             <xsl:call-template name="commonattributes"/>
             <xsl:call-template name="xref.AVcCommand"/>
@@ -176,7 +283,7 @@
                 <xsl:with-param name="theVariableID" select="'Figure'"/>
                 <xsl:with-param name="theParameters">
                     <number>
-                        <xsl:number format="1." count="bookmap/concept"/>
+                        <xsl:number format="1." count="bookmap/concept[title[@outputclass='Heading 1']]"/>
                         <xsl:number level="any" format="1. " from="bookmap/concept"
                             count="*[contains(@class, ' topic/fig ')][child::*[contains(@class, ' topic/title ')]]" />
                     </number>
@@ -196,7 +303,7 @@
                 <xsl:with-param name="theVariableID" select="'Table'"/>
                 <xsl:with-param name="theParameters">
                     <number>
-                        <xsl:number format="1." count="bookmap/concept"/>
+                        <xsl:number format="1." count="bookmap/concept[title[@outputclass='Heading 1']]"/>
                         <xsl:number level="any" format="1. " from="bookmap/concept"
                             count="*[contains(@class, ' topic/table ')][child::*[contains(@class, ' topic/title ')]]"/>
                     </number>
@@ -207,6 +314,28 @@
             </xsl:call-template>
         </fo:block>
     </xsl:template>
+
+    <xsl:template match="*[contains(@class, ' topic/thead ')]">
+        <fo:table-header xsl:use-attribute-sets="tgroup.thead">
+            <xsl:attribute name="keep-with-next.within-page">always</xsl:attribute>
+            <xsl:call-template name="commonattributes"/>
+            <xsl:apply-templates/>
+        </fo:table-header>
+    </xsl:template>
+    
+    <xsl:template match="*[contains(@class, ' topic/tbody ')]/*[contains(@class, ' topic/row ')]">
+        <fo:table-row xsl:use-attribute-sets="tbody.row">
+            <xsl:if test="not(following-sibling::*[contains(@class, ' topic/row ')])">
+                <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="not(preceding-sibling::*[contains(@class, ' topic/row ')])">
+                <xsl:attribute name="keep-with-next.within-page">always</xsl:attribute>
+            </xsl:if>
+            <xsl:call-template name="commonattributes"/>
+            <xsl:apply-templates/>
+        </fo:table-row>
+    </xsl:template>
+    
     
     <!-- place title below table -->
     <xsl:template match="*[contains(@class, ' topic/table ')]">
@@ -227,6 +356,75 @@
             <xsl:apply-templates select="*[not(contains(@class, ' topic/title '))]"/>
             <xsl:apply-templates select="*[contains(@class, ' topic/title ')]"/>
         </fo:block>
+    </xsl:template>
+    
+    <!-- Task steps -->
+    <xsl:template name="determine-keeps">
+        <xsl:variable name="last-step" select="not(following-sibling::*[contains(@class, ' task/step ')])"/>
+        <xsl:variable name="first-step" select="not(preceding-sibling::*[contains(@class,' task/step ')])"/>
+        <xsl:choose>
+            <xsl:when test="$first-step and not(last-step)">
+                <xsl:attribute name="keep-with-next.within-page">always</xsl:attribute>
+            </xsl:when>
+            <xsl:when test="$last-step and not($first-step)">
+                <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
+    
+    <xsl:template match="*[contains(@class, ' task/steps ')]/*[contains(@class, ' task/step ')]">
+        <!-- Switch to variable for the count rather than xsl:number, so that step specializations are also counted -->
+        <xsl:variable name="actual-step-count" select="number(count(preceding-sibling::*[contains(@class, ' task/step ')])+1)"/>
+        <fo:list-item xsl:use-attribute-sets="steps.step">
+            <xsl:call-template name="determine-keeps"/>
+            <fo:list-item-label xsl:use-attribute-sets="steps.step__label">
+                <fo:block xsl:use-attribute-sets="steps.step__label__content">
+                    <fo:inline>
+                        <xsl:call-template name="commonattributes"/>
+                    </fo:inline>
+                    <xsl:if test="preceding-sibling::*[contains(@class, ' task/step ')] | following-sibling::*[contains(@class, ' task/step ')]">
+                        <xsl:call-template name="insertVariable">
+                            <xsl:with-param name="theVariableID" select="'Ordered List Number'"/>
+                            <xsl:with-param name="theParameters">
+                                <number>
+                                    <xsl:value-of select="$actual-step-count"/>
+                                </number>
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:if>
+                </fo:block>
+            </fo:list-item-label>
+            
+            <fo:list-item-body xsl:use-attribute-sets="steps.step__body">
+                <fo:block xsl:use-attribute-sets="steps.step__content">
+                    <xsl:apply-templates/>
+                </fo:block>
+            </fo:list-item-body>
+            
+        </fo:list-item>
+    </xsl:template>
+    
+    <xsl:template match="*[contains(@class, ' task/steps-unordered ')]/*[contains(@class, ' task/step ')]">
+        <fo:list-item xsl:use-attribute-sets="steps-unordered.step">
+            <xsl:call-template name="determine-keeps"/>
+            <fo:list-item-label xsl:use-attribute-sets="steps-unordered.step__label">
+                <fo:block xsl:use-attribute-sets="steps-unordered.step__label__content">
+                    <fo:inline>
+                        <xsl:call-template name="commonattributes"/>
+                    </fo:inline>
+                    <xsl:call-template name="insertVariable">
+                        <xsl:with-param name="theVariableID" select="'Unordered List bullet'"/>
+                    </xsl:call-template>
+                </fo:block>
+            </fo:list-item-label>
+            
+            <fo:list-item-body xsl:use-attribute-sets="steps-unordered.step__body">
+                <fo:block xsl:use-attribute-sets="steps-unordered.step__content">
+                    <xsl:apply-templates/>
+                </fo:block>
+            </fo:list-item-body>
+            
+        </fo:list-item>
     </xsl:template>
    
     <!-- FAQ formatted in table -->

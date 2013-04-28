@@ -104,7 +104,7 @@
     
     <!-- static images -->
     <xsl:variable name="frontpageLogo">VISMA_Master_4f.jpg</xsl:variable>
-    <xsl:variable name="faqIcon">faq.png</xsl:variable>
+    <xsl:variable name="faqIcon">vraagteken_250.png</xsl:variable>
     
     <!-- front matter -->
     <xsl:attribute-set name="__frontmatter">
@@ -112,7 +112,7 @@
     </xsl:attribute-set>
     
     <xsl:attribute-set name="__frontmatter__title" use-attribute-sets="common.title">
-        <xsl:attribute name="space-before">80mm</xsl:attribute>
+        <xsl:attribute name="space-before">40mm</xsl:attribute>
         <xsl:attribute name="space-before.conditionality">retain</xsl:attribute>
         <xsl:attribute name="font-size">40pt</xsl:attribute>
         <xsl:attribute name="font-weight">bold</xsl:attribute>
@@ -127,6 +127,20 @@
         <xsl:attribute name="font-size">24pt</xsl:attribute>
     </xsl:attribute-set>
  
+    <xsl:attribute-set name="__frontmatter__owner" use-attribute-sets="common.title">
+        <xsl:attribute name="space-before">18mm</xsl:attribute>
+        <xsl:attribute name="font-size">11pt</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
+        <xsl:attribute name="line-height">normal</xsl:attribute>
+    </xsl:attribute-set>
+ 
+    <xsl:attribute-set name="__frontmatter__logocaption">
+        <xsl:attribute name="font-stretch">ultra-condensed</xsl:attribute>
+        <xsl:attribute name="text-align">left</xsl:attribute>
+        <xsl:attribute name="font-size">18pt</xsl:attribute>
+        <xsl:attribute name="font-family">Sans</xsl:attribute>
+    </xsl:attribute-set>
+    
     <!-- TOC -->
     <xsl:attribute-set name="__toc__indent__index">
         <xsl:attribute name="start-indent"><xsl:value-of select="$side-col-width"/> + <xsl:value-of select="$toc.text-indent"/></xsl:attribute>
@@ -144,6 +158,13 @@
         <xsl:attribute name="font-weight">bold</xsl:attribute>
     </xsl:attribute-set>
     
+    <xsl:attribute-set name="__toc__link">
+        <xsl:attribute name="line-height">100%</xsl:attribute>
+        <!--xsl:attribute name="font-size">
+            <xsl:variable name="level" select="count(ancestor-or-self::*[contains(@class, ' topic/topic ')])"/>
+            <xsl:value-of select="concat(string(20 - number($level) - 4), 'pt')"/>
+        </xsl:attribute-->
+    </xsl:attribute-set>
     
     <!-- indents -->
     <xsl:template name="p.AVpNormalIndent">
@@ -154,7 +175,16 @@
         <xsl:attribute name="margin-left"><xsl:value-of select="$double-indent"/></xsl:attribute>
     </xsl:template>
     
+    <xsl:attribute-set name="p.AVpRefCondition">
+        <xsl:attribute name="space-before">2pt</xsl:attribute>
+        <xsl:attribute name="space-after">2pt</xsl:attribute>
+    </xsl:attribute-set>
+    
     <!--inlines-->
+    <xsl:attribute-set name="menucascade-separator">
+        <xsl:attribute name="font-style">normal</xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:template name="ph.AVcModule">
         <xsl:attribute name="font-style">italic</xsl:attribute>
     </xsl:template>
@@ -164,13 +194,25 @@
     <xsl:template name="ph.AVcKey">
     </xsl:template>  
     <xsl:template name="ph.AVcCommand">
-        <xsl:attribute name="font-weigth">bold</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
     </xsl:template>  
     
     <xsl:template name="ph.AVpListBullet">
         <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
     </xsl:template>  
     
+    <xsl:template name="ph.AVpAttention">
+        <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+    </xsl:template>  
+    
+    <xsl:template name="ph.AVpExample">
+        <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+    </xsl:template>  
+
+    <xsl:template name="ph.AVpNB">
+        <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+    </xsl:template>  
+
     <xsl:template name="uicontrol.AVcKey">
     </xsl:template>
     <xsl:template name="uicontrol.AVcField">
@@ -186,12 +228,17 @@
         <xsl:attribute name="font-style">italic</xsl:attribute>
     </xsl:template>
     <xsl:template name="xref.AVcCommand">
-        <xsl:attribute name="font-weigth">bold</xsl:attribute>
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
         <xsl:attribute name="font-style">normal</xsl:attribute>
     </xsl:template>
     <xsl:attribute-set name="common.link">
         <xsl:attribute name="color">black</xsl:attribute>
         <xsl:attribute name="font-style">italic</xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="link__shortdesc" use-attribute-sets="base-font">
+        <xsl:attribute name="margin-left">0pt</xsl:attribute>
+        <xsl:attribute name="space-after">0pt</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:attribute-set name="codeph" use-attribute-sets="base-font">

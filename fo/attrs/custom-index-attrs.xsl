@@ -52,9 +52,12 @@
         <xsl:attribute name="page-number-treatment">link</xsl:attribute>
     </xsl:attribute-set>
     
+    <xsl:attribute-set name="index-continued">
+        <xsl:attribute name="font-size">8pt</xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:attribute-set name="index-indents">
         <xsl:attribute name="end-indent">5pt</xsl:attribute>
-        <!--<xsl:attribute name="font-size">8pt</xsl:attribute>-->
         <!-- changed -->
         <xsl:attribute name="start-indent">3.5mm</xsl:attribute>
         <xsl:attribute name="text-indent">-3.5mm</xsl:attribute>
@@ -62,7 +65,6 @@
     </xsl:attribute-set>
 
     <xsl:attribute-set name="index-indent-indents">
-        <!--<xsl:attribute name="font-size">8pt</xsl:attribute>-->
         <!-- changed -->
         <xsl:attribute name="start-indent">7mm</xsl:attribute>
         <xsl:attribute name="text-indent">-3.5mm</xsl:attribute>
