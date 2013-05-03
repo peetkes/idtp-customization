@@ -37,10 +37,22 @@
     <xsl:variable name="standard-indent">6mm</xsl:variable>
     <xsl:variable name="double-indent">12mm</xsl:variable>
 
+    <xsl:template name="standard-outdent-block">
+        <xsl:attribute name="margin-left">-6mm</xsl:attribute>
+    </xsl:template>
+    <xsl:template name="double-outdent-block">
+        <xsl:attribute name="margin-left">-12mm</xsl:attribute>
+    </xsl:template>
+
     <!-- paragraph-like blocks -->
     <xsl:attribute-set name="common.block">
         <xsl:attribute name="space-before">1pt</xsl:attribute>
         <xsl:attribute name="space-after">1pt</xsl:attribute>
+    </xsl:attribute-set>
+    
+    <xsl:attribute-set name="section" use-attribute-sets="base-font">
+        <xsl:attribute name="line-height"><xsl:value-of select="$default-line-height"/></xsl:attribute>
+        <xsl:attribute name="space-before">0pt</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:template name="common.block">
@@ -201,6 +213,11 @@
         <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
     </xsl:template>  
     
+    <xsl:template name="ph.AVpListBulletIndent">
+        <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
+        <xsl:attribute name="margin-left"><xsl:value-of select="$standard-indent"/></xsl:attribute>
+    </xsl:template>  
+    
     <xsl:template name="ph.AVpAttention">
         <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
     </xsl:template>  
@@ -304,6 +321,10 @@
         <xsl:attribute name="text-align">start</xsl:attribute>
     </xsl:attribute-set>
         
+    <xsl:attribute-set name="ul.li__body">
+        <xsl:attribute name="start-indent"><xsl:value-of select="$standard-indent"/></xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:attribute-set name="ol" use-attribute-sets="common.block">
         <xsl:attribute name="provisional-distance-between-starts"><xsl:value-of select="$standard-indent"/></xsl:attribute>
         <xsl:attribute name="provisional-label-separation">1mm</xsl:attribute>
@@ -472,6 +493,11 @@
     </xsl:attribute-set>
     
     <!-- FAQ -->
+    <xsl:attribute-set name="faq.icon">
+        <xsl:attribute name="content-height">2em</xsl:attribute>
+        <xsl:attribute name="content-width">2em</xsl:attribute>
+    </xsl:attribute-set>
+    
     <xsl:template name="common.note.block">
         <xsl:attribute name="space-before">2pt</xsl:attribute>
         <xsl:attribute name="space-after">2pt</xsl:attribute>
@@ -501,6 +527,11 @@
     <xsl:attribute-set name="faq__text__entry" use-attribute-sets="note__text__entry"/>
     
     <!-- notes -->
+    <xsl:attribute-set name="note.icon">
+        <xsl:attribute name="content-height">2em</xsl:attribute>
+        <xsl:attribute name="content-width">2em</xsl:attribute>
+    </xsl:attribute-set>
+
     <xsl:attribute-set name="note" use-attribute-sets="common.note.block">
     </xsl:attribute-set>
     

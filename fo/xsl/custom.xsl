@@ -152,6 +152,13 @@
                     <xsl:apply-templates/>
                 </fo:block>
             </xsl:when>
+            <xsl:when test="preceding-sibling::ph[@outputclass='AVpListBulletIndent']">
+                <fo:block>
+                    <xsl:call-template name="ph.AVpListBulletIndent"/>
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:apply-templates/>
+                </fo:block>
+            </xsl:when>
             <xsl:when test="parent::*[contains(@class,' task/info ')]">
                 <fo:block>
                     <xsl:apply-templates/>
@@ -438,9 +445,8 @@
                 <fo:table-row>
                     <fo:table-cell xsl:use-attribute-sets="faq__image__entry">
                         <fo:block line-height="{$default-line-height}">
-                            <fo:external-graphic  
-                                src="url({concat($artworkPrefix,'Customization/OpenTopic/common/artwork/',$faqIcon)})"
-                                content-height="2em" content-width="2em"/>
+                            <fo:external-graphic xsl:use-attribute-sets="faq.icon" 
+                                src="url({concat($artworkPrefix,'Customization/OpenTopic/common/artwork/',$faqIcon)})"/>
                         </fo:block>
                     </fo:table-cell>
                     <fo:table-cell xsl:use-attribute-sets="faq__text__entry">
@@ -484,14 +490,17 @@
         <xsl:choose>
             <xsl:when test="not($noteImagePath = '')">
                 <fo:table xsl:use-attribute-sets="note__table">
+                    <xsl:if test="parent::*[contains(@class, ' topic/itemgroup ')]">
+                        <xsl:call-template name="standard-outdent-block"/>
+                    </xsl:if>
                     <fo:table-column xsl:use-attribute-sets="note__image__column"/>
                     <fo:table-column xsl:use-attribute-sets="note__text__column"/>
                     <fo:table-body>
                         <fo:table-row>
                             <fo:table-cell xsl:use-attribute-sets="note__image__entry">
                                 <fo:block line-height="{$default-line-height}">
-                                    <fo:external-graphic src="url({concat($artworkPrefix, $noteImagePath)})"
-                                        content-height="2em" content-width="2em"/>
+                                    <fo:external-graphic xsl:use-attribute-sets="note.icon"
+                                        src="url({concat($artworkPrefix, $noteImagePath)})"/>
                                 </fo:block>
                             </fo:table-cell>
                             <fo:table-cell xsl:use-attribute-sets="note__text__entry">
