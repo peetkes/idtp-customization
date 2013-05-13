@@ -24,6 +24,9 @@
     <!-- index -->
     <xsl:include href="custom-index.xsl"/>
     
+    <!-- lists -->
+    <xsl:include href="custom-lists.xsl"/>
+    
     <!-- common -->
     <xsl:template name="commonattributes">
         <xsl:apply-templates select="@id"/>
@@ -245,6 +248,24 @@
         </fo:inline>
     </xsl:template>
         
+    <xsl:template match="*[contains(@class,' ui-d/wintitle ')]">
+        <fo:inline xsl:use-attribute-sets="wintitle">
+            <xsl:choose>
+                <xsl:when test="@outputclass = 'AVcKey'">
+                    <xsl:call-template name="wintitle.AVcKey"/>
+                </xsl:when>
+                <xsl:when test="@outputclass = 'AVcField'">
+                    <xsl:call-template name="wintitle.AVcField"/>
+                </xsl:when>
+                <xsl:when test="@outputclass = 'AVcScreen'">
+                    <xsl:call-template name="wintitle.AVcScreen"/>
+                </xsl:when>
+            </xsl:choose>
+            <xsl:call-template name="commonattributes"/>
+            <xsl:apply-templates/>
+        </fo:inline>
+    </xsl:template>
+    
     <xsl:template match="*[contains(@class,' ui-d/uicontrol ')]" priority="2">
         <!-- insert an arrow before all but the first uicontrol in a menucascade -->
         <xsl:if test="ancestor::*[contains(@class,' ui-d/menucascade ')]">
@@ -365,75 +386,6 @@
         </fo:block>
     </xsl:template>
     
-    <!-- Task steps -->
-    <xsl:template name="determine-keeps">
-        <xsl:variable name="last-step" select="not(following-sibling::*[contains(@class, ' task/step ')])"/>
-        <xsl:variable name="first-step" select="not(preceding-sibling::*[contains(@class,' task/step ')])"/>
-        <xsl:choose>
-            <xsl:when test="$first-step and not(last-step)">
-                <xsl:attribute name="keep-with-next.within-page">always</xsl:attribute>
-            </xsl:when>
-            <xsl:when test="$last-step and not($first-step)">
-                <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
-            </xsl:when>
-        </xsl:choose>
-    </xsl:template>
-    
-    <xsl:template match="*[contains(@class, ' task/steps ')]/*[contains(@class, ' task/step ')]">
-        <!-- Switch to variable for the count rather than xsl:number, so that step specializations are also counted -->
-        <xsl:variable name="actual-step-count" select="number(count(preceding-sibling::*[contains(@class, ' task/step ')])+1)"/>
-        <fo:list-item xsl:use-attribute-sets="steps.step">
-            <xsl:call-template name="determine-keeps"/>
-            <fo:list-item-label xsl:use-attribute-sets="steps.step__label">
-                <fo:block xsl:use-attribute-sets="steps.step__label__content">
-                    <fo:inline>
-                        <xsl:call-template name="commonattributes"/>
-                    </fo:inline>
-                    <xsl:if test="preceding-sibling::*[contains(@class, ' task/step ')] | following-sibling::*[contains(@class, ' task/step ')]">
-                        <xsl:call-template name="insertVariable">
-                            <xsl:with-param name="theVariableID" select="'Ordered List Number'"/>
-                            <xsl:with-param name="theParameters">
-                                <number>
-                                    <xsl:value-of select="$actual-step-count"/>
-                                </number>
-                            </xsl:with-param>
-                        </xsl:call-template>
-                    </xsl:if>
-                </fo:block>
-            </fo:list-item-label>
-            
-            <fo:list-item-body xsl:use-attribute-sets="steps.step__body">
-                <fo:block xsl:use-attribute-sets="steps.step__content">
-                    <xsl:apply-templates/>
-                </fo:block>
-            </fo:list-item-body>
-            
-        </fo:list-item>
-    </xsl:template>
-    
-    <xsl:template match="*[contains(@class, ' task/steps-unordered ')]/*[contains(@class, ' task/step ')]">
-        <fo:list-item xsl:use-attribute-sets="steps-unordered.step">
-            <xsl:call-template name="determine-keeps"/>
-            <fo:list-item-label xsl:use-attribute-sets="steps-unordered.step__label">
-                <fo:block xsl:use-attribute-sets="steps-unordered.step__label__content">
-                    <fo:inline>
-                        <xsl:call-template name="commonattributes"/>
-                    </fo:inline>
-                    <xsl:call-template name="insertVariable">
-                        <xsl:with-param name="theVariableID" select="'Unordered List bullet'"/>
-                    </xsl:call-template>
-                </fo:block>
-            </fo:list-item-label>
-            
-            <fo:list-item-body xsl:use-attribute-sets="steps-unordered.step__body">
-                <fo:block xsl:use-attribute-sets="steps-unordered.step__content">
-                    <xsl:apply-templates/>
-                </fo:block>
-            </fo:list-item-body>
-            
-        </fo:list-item>
-    </xsl:template>
-   
     <!-- FAQ formatted in table -->
     <!-- table starts on conbody and takes all content into account, not only the sections with outputclass="AVpFAQ" -->
     <xsl:template match="*[contains(@class,' topic/body ')]/*[contains(@class,' topic/section ')][@outputclass='AVpFAQ']">
@@ -442,7 +394,7 @@
             <fo:table-column xsl:use-attribute-sets="faq__image__column"/>
             <fo:table-column xsl:use-attribute-sets="faq__text__column"/>
             <fo:table-body>
-                <fo:table-row>
+                <fo:table-row keep-together.within-page="always">
                     <fo:table-cell xsl:use-attribute-sets="faq__image__entry">
                         <fo:block line-height="{$default-line-height}">
                             <fo:external-graphic xsl:use-attribute-sets="faq.icon" 
@@ -496,7 +448,7 @@
                     <fo:table-column xsl:use-attribute-sets="note__image__column"/>
                     <fo:table-column xsl:use-attribute-sets="note__text__column"/>
                     <fo:table-body>
-                        <fo:table-row>
+                        <fo:table-row keep-together.within-page="always">
                             <fo:table-cell xsl:use-attribute-sets="note__image__entry">
                                 <fo:block line-height="{$default-line-height}">
                                     <fo:external-graphic xsl:use-attribute-sets="note.icon"

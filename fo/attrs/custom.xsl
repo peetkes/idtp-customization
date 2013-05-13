@@ -46,20 +46,20 @@
 
     <!-- paragraph-like blocks -->
     <xsl:attribute-set name="common.block">
-        <xsl:attribute name="space-before">1pt</xsl:attribute>
-        <xsl:attribute name="space-after">1pt</xsl:attribute>
+        <xsl:attribute name="space-before">4pt</xsl:attribute>
+        <xsl:attribute name="space-after">4pt</xsl:attribute>
     </xsl:attribute-set>
+    
+    <xsl:template name="common.block">
+        <xsl:attribute name="space-before">4pt</xsl:attribute>
+        <xsl:attribute name="space-after">4pt</xsl:attribute>
+    </xsl:template>
     
     <xsl:attribute-set name="section" use-attribute-sets="base-font">
         <xsl:attribute name="line-height"><xsl:value-of select="$default-line-height"/></xsl:attribute>
         <xsl:attribute name="space-before">0pt</xsl:attribute>
     </xsl:attribute-set>
     
-    <xsl:template name="common.block">
-        <xsl:attribute name="space-before">1pt</xsl:attribute>
-        <xsl:attribute name="space-after">1pt</xsl:attribute>
-    </xsl:template>
-
     <!-- header margins -->
     <xsl:attribute-set name="odd__header">
         <xsl:attribute name="padding-top">45mm</xsl:attribute>
@@ -95,6 +95,7 @@
     <!-- font -->
    <xsl:attribute-set name="__fo__root">   
         <xsl:attribute name="font-size"><xsl:value-of select="$default-font-size"/></xsl:attribute>
+       <xsl:attribute name="line-height">1.2</xsl:attribute>
    </xsl:attribute-set>
     
     <xsl:attribute-set name="base-font">
@@ -230,7 +231,28 @@
         <xsl:attribute name="keep-with-previous.within-page">always</xsl:attribute>
     </xsl:template>  
 
+    <!--<xsl:attribute-set name="uicontrol">
+        <xsl:attribute name="font-weight">normal</xsl:attribute>
+        <xsl:attribute name="line-height">100%</xsl:attribute>
+    </xsl:attribute-set>-->
+    
+    <!--<xsl:attribute-set name="wintitle">
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
+    </xsl:attribute-set>-->
+    
+    <xsl:template name="wintitle.AVcKey">
+        <xsl:attribute name="font-weight">normal</xsl:attribute>
+    </xsl:template>
+    <xsl:template name="wintitle.AVcField">
+        <xsl:attribute name="font-weight">bold</xsl:attribute>
+    </xsl:template>
+    <xsl:template name="wintitle.AVcScreen">
+        <xsl:attribute name="font-weight">normal</xsl:attribute>
+        <xsl:attribute name="font-style">italic</xsl:attribute>
+    </xsl:template>
+
     <xsl:template name="uicontrol.AVcKey">
+        <xsl:attribute name="font-weight">normal</xsl:attribute>
     </xsl:template>
     <xsl:template name="uicontrol.AVcField">
         <xsl:attribute name="font-weight">bold</xsl:attribute>
@@ -238,6 +260,7 @@
     <xsl:template name="uicontrol.AVcScreen">
         <xsl:attribute name="font-weight">bold</xsl:attribute>
     </xsl:template>
+    
     <xsl:template name="i.AVcEmphasis">
         <xsl:attribute name="font-weight">bold</xsl:attribute>
     </xsl:template>
@@ -317,12 +340,13 @@
     </xsl:attribute-set>
     
     <xsl:attribute-set name="ul.li__label__content">
-        <!--<xsl:attribute name="font-size">12pt</xsl:attribute>-->
+        <xsl:attribute name="font-size">12pt</xsl:attribute>
         <xsl:attribute name="text-align">start</xsl:attribute>
     </xsl:attribute-set>
         
     <xsl:attribute-set name="ul.li__body">
-        <xsl:attribute name="start-indent"><xsl:value-of select="$standard-indent"/></xsl:attribute>
+        <!--<xsl:attribute name="start-indent"><xsl:value-of select="$standard-indent"/></xsl:attribute>-->
+        <xsl:attribute name="start-indent">body-start()</xsl:attribute>
     </xsl:attribute-set>
     
     <xsl:attribute-set name="ol" use-attribute-sets="common.block">

@@ -3,8 +3,56 @@
     xmlns:fo="http://www.w3.org/1999/XSL/Format" 
     xmlns:exsl="http://exslt.org/common"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    exclude-result-prefixes="xs exsl"
     version="2.0">
-    
+
+    <!-- custom notices page -->
+    <xsl:template name="processTopicNotices">
+        <xsl:comment>procesTopicNotices</xsl:comment>
+        <fo:page-sequence master-reference="body-sequence" xsl:use-attribute-sets="__force__page__count">
+            <xsl:call-template name="insertBodyStaticContents">
+                <xsl:with-param name="output.header" select="false()"/>
+            </xsl:call-template>
+            <fo:flow flow-name="xsl-region-body">
+                <fo:block xsl:use-attribute-sets="topic">
+                    <xsl:call-template name="commonattributes"/>
+                    <xsl:if test="not(ancestor::*[contains(@class, ' topic/topic ')])">
+                        <fo:marker marker-class-name="current-topic-number"/>
+                        <fo:marker marker-class-name="current-header"/>
+                    </xsl:if>
+                    
+                    <xsl:apply-templates select="*[contains(@class,' topic/prolog ')]"/>
+                    
+                    <xsl:call-template name="insertChapterFirstpageStaticContent">
+                        <xsl:with-param name="type" select="'notices'"/>
+                    </xsl:call-template>
+                    
+                    <fo:block xsl:use-attribute-sets="topic.title">
+                        <!-- added by William on 2009-07-02 for indexterm bug:2815485 start-->
+                        <xsl:call-template name="pullPrologIndexTerms"/>
+                        <!-- added by William on 2009-07-02 for indexterm bug:2815485 end-->
+                        <xsl:for-each select="child::*[contains(@class,' topic/title ')]">
+                            <xsl:apply-templates select="." mode="getTitle"/>
+                        </xsl:for-each>
+                    </fo:block>
+                    
+                    <xsl:choose>
+                        <xsl:when test="$noticesLayout='BASIC'">
+                            <xsl:apply-templates select="*[not(contains(@class, ' topic/topic ') or contains(@class, ' topic/title ') or
+                                contains(@class, ' topic/prolog '))]"/>
+                            <xsl:apply-templates select="." mode="buildRelationships"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:apply-templates select="." mode="createMiniToc"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                    
+                    <xsl:apply-templates select="*[contains(@class,' topic/topic ')]"/>
+                </fo:block>
+            </fo:flow>
+        </fo:page-sequence>
+    </xsl:template>
+        
     <!-- chapter-first pagina -->
     <xsl:template name="processTopicChapter" >
         <xsl:variable name="id" select="@id"/>

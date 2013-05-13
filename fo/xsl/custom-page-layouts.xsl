@@ -296,22 +296,116 @@
         </xsl:if>
     </xsl:template>
     
+    <xsl:template name="insertBodyStaticContents">
+        <xsl:param name="output.header" select="true()"/>
+        <xsl:call-template name="insertBodyFootnoteSeparator"/>
+        <xsl:call-template name="insertBodyOddFooter"/>
+        <xsl:if test="$mirror-page-margins">
+            <xsl:call-template name="insertBodyEvenFooter"/>
+        </xsl:if>
+        <xsl:call-template name="insertBodyOddHeader">
+            <xsl:with-param name="output.header" select="$output.header"/>
+        </xsl:call-template>
+        <xsl:if test="$mirror-page-margins">
+            <xsl:call-template name="insertBodyEvenHeader">
+                <xsl:with-param name="output.header" select="$output.header"/>
+            </xsl:call-template>
+        </xsl:if>
+        <xsl:call-template name="insertBodyFirstHeader">
+            <xsl:with-param name="output.header" select="$output.header"/>
+        </xsl:call-template>
+        <xsl:call-template name="insertBodyFirstFooter"/>
+        <xsl:call-template name="insertBodyLastHeader">
+            <xsl:with-param name="output.header" select="$output.header"/>
+        </xsl:call-template>
+        <xsl:call-template name="insertBodyLastFooter"/>
+    </xsl:template>
+    
+    <xsl:template name="insertBodyOddHeader">
+        <xsl:param name="output.header" select="true()"/>
+        <xsl:if test="$output.header">
+            <fo:static-content flow-name="odd-body-header">
+                <fo:block xsl:use-attribute-sets="__body__odd__header">
+                    <xsl:call-template name="insertVariable">
+                        <xsl:with-param name="theVariableID" select="'Body odd header'"/>
+                        <xsl:with-param name="theParameters">
+                            <prodname>
+                                <xsl:value-of select="$productName"/>
+                            </prodname>
+                            <heading>
+                                <fo:inline xsl:use-attribute-sets="__body__odd__header__heading">
+                                    <fo:retrieve-marker retrieve-class-name="current-header"/>
+                                </fo:inline>
+                            </heading>
+                            <pagenum>
+                                <fo:inline xsl:use-attribute-sets="__body__odd__header__pagenum">
+                                    <fo:page-number/>
+                                </fo:inline>
+                            </pagenum>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </fo:block>
+            </fo:static-content>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template name="insertBodyEvenHeader">
+        <xsl:param name="output.header" select="true()"/>
+        <xsl:if test="$output.header">
+            <fo:static-content flow-name="even-body-header">
+                <fo:block xsl:use-attribute-sets="__body__even__header">
+                    <xsl:call-template name="insertVariable">
+                        <xsl:with-param name="theVariableID" select="'Body even header'"/>
+                        <xsl:with-param name="theParameters">
+                            <prodname>
+                                <xsl:value-of select="$productName"/>
+                            </prodname>
+                            <heading>
+                                <fo:inline xsl:use-attribute-sets="__body__even__header__heading">
+                                    <fo:retrieve-marker retrieve-class-name="current-header"/>
+                                </fo:inline>
+                            </heading>
+                            <pagenum>
+                                <fo:inline xsl:use-attribute-sets="__body__even__header__pagenum">
+                                    <fo:page-number/>
+                                </fo:inline>
+                            </pagenum>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </fo:block>
+            </fo:static-content>
+        </xsl:if>
+    </xsl:template>
+    
     <!-- body first heading no running header -->
     <xsl:template name="insertBodyFirstHeader">
-         <fo:static-content flow-name="first-body-header">
-            <fo:block xsl:use-attribute-sets="__body__first__header">
-                <xsl:call-template name="insertVariable">
-                    <xsl:with-param name="theVariableID" select="'Body first header'"/>
-                    <xsl:with-param name="theParameters">
-                        <pagenum>
-                            <fo:inline xsl:use-attribute-sets="__body__first__header__pagenum">
-                                <fo:page-number/>
-                            </fo:inline>
-                        </pagenum>
-                    </xsl:with-param>
-                </xsl:call-template>
-            </fo:block>
-        </fo:static-content>
+        <xsl:param name="output.header" select="true()"/>
+        <xsl:if test="$output.header">
+            <fo:static-content flow-name="first-body-header">
+                <fo:block xsl:use-attribute-sets="__body__first__header">
+                    <xsl:call-template name="insertVariable">
+                        <xsl:with-param name="theVariableID" select="'Body first header'"/>
+                        <xsl:with-param name="theParameters">
+                            <pagenum>
+                                <fo:inline xsl:use-attribute-sets="__body__first__header__pagenum">
+                                    <fo:page-number/>
+                                </fo:inline>
+                            </pagenum>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </fo:block>
+            </fo:static-content>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template name="insertBodyLastHeader">
+        <xsl:param name="output.header" select="true()"/>
+        <xsl:if test="$output.header">
+            <fo:static-content flow-name="last-body-header">
+                <fo:block xsl:use-attribute-sets="__body__last__header">
+                </fo:block>
+            </fo:static-content>
+        </xsl:if>
     </xsl:template>
     
     <!-- toc -->
