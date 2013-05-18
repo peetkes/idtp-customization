@@ -23,7 +23,11 @@
     <xsl:variable name="page-margin-inside">25mm</xsl:variable>
     <xsl:variable name="page-margin-outside">15mm</xsl:variable>
     
-
+    <xsl:variable name="index-entries">
+        <xsl:apply-templates select="/" mode="index-entries"/>
+    </xsl:variable>
+    
+    
     <xsl:attribute-set name="region-body__frontmatter.first" use-attribute-sets="region-body.first">
     </xsl:attribute-set>
     

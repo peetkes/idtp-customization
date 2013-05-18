@@ -27,6 +27,9 @@
     <!-- lists -->
     <xsl:include href="custom-lists.xsl"/>
     
+    <!-- links -->
+    <xsl:include href="custom-links.xsl"/>
+    
     <!-- common -->
     <xsl:template name="commonattributes">
         <xsl:apply-templates select="@id"/>
@@ -248,7 +251,7 @@
         </fo:inline>
     </xsl:template>
         
-    <xsl:template match="*[contains(@class,' ui-d/wintitle ')]">
+    <xsl:template match="*[contains(@class,' ui-d/wintitle ')]" priority="2">
         <fo:inline xsl:use-attribute-sets="wintitle">
             <xsl:choose>
                 <xsl:when test="@outputclass = 'AVcKey'">
@@ -295,14 +298,16 @@
         </fo:inline>
     </xsl:template>
     
-    <xsl:template match="*[contains(@class,' topic/xref ')][@outputclass = 'AVcCommand']">
-        <fo:inline>
+    <xsl:template match="*[contains(@class,' hi-d/i ')]" priority="2">
+        <fo:inline xsl:use-attribute-sets="i">
             <xsl:call-template name="commonattributes"/>
-            <xsl:call-template name="xref.AVcCommand"/>
+            <xsl:if test="@outputclass = 'AVcEmphasis'">
+                <xsl:call-template name="i.AVcEmphasis"/>
+            </xsl:if>
             <xsl:apply-templates/>
         </fo:inline>
     </xsl:template>
-    
+        
     <!-- figures -->
     <xsl:template match="*[contains(@class,' topic/fig ')]/*[contains(@class,' topic/title ')]">
         <fo:block xsl:use-attribute-sets="fig.title">
@@ -388,7 +393,7 @@
     
     <!-- FAQ formatted in table -->
     <!-- table starts on conbody and takes all content into account, not only the sections with outputclass="AVpFAQ" -->
-    <xsl:template match="*[contains(@class,' topic/body ')]/*[contains(@class,' topic/section ')][@outputclass='AVpFAQ']">
+    <xsl:template match="*[contains(@class,' topic/body ')]/*[contains(@class,' topic/section ')][@outputclass='AVpFAQ']" mode="pk">
         <fo:table>
             <xsl:call-template name="faq_table"/>
             <fo:table-column xsl:use-attribute-sets="faq__image__column"/>
@@ -409,6 +414,27 @@
         </fo:table>
     </xsl:template>
      
+    <xsl:template match="*[contains(@class,' topic/body ')]/*[contains(@class,' topic/section ')][@outputclass='AVpFAQ']">
+        <fo:table>
+            <xsl:call-template name="faq_table"/>
+            <fo:table-column xsl:use-attribute-sets="faq__image__column"/>
+            <fo:table-column xsl:use-attribute-sets="faq__text__column"/>
+            <fo:table-body>
+                <fo:table-row keep-together.within-page="always">
+                    <fo:table-cell xsl:use-attribute-sets="faq__image__entry">
+                        <fo:block line-height="{$default-line-height}">
+                            <fo:external-graphic xsl:use-attribute-sets="faq.icon" 
+                                src="url({concat($artworkPrefix,'Customization/OpenTopic/common/artwork/',$faqIcon)})"/>
+                        </fo:block>
+                    </fo:table-cell>
+                    <fo:table-cell xsl:use-attribute-sets="faq__text__entry">
+                        <xsl:apply-templates/>
+                    </fo:table-cell>
+                </fo:table-row>
+            </fo:table-body>
+        </fo:table>
+    </xsl:template>
+    
     <xsl:template match="*[contains(@class,' topic/section ')]/*[contains(@class,' topic/title ')][@outputclass='AVpFAQ']">
         <fo:block>
             <xsl:call-template name="commonattributes"/>
@@ -442,9 +468,14 @@
         <xsl:choose>
             <xsl:when test="not($noteImagePath = '')">
                 <fo:table xsl:use-attribute-sets="note__table">
-                    <xsl:if test="parent::*[contains(@class, ' topic/itemgroup ')]">
-                        <xsl:call-template name="standard-outdent-block"/>
-                    </xsl:if>
+                    <xsl:choose>
+                        <xsl:when test="parent::*[contains(@class, ' topic/itemgroup ')]">
+                            <xsl:call-template name="standard-outdent-block"/>
+                        </xsl:when>
+                        <xsl:when test="parent::*[contains(@class, ' topic/section ') and contains(@outputclass, 'AVpFAQ')]">
+                            <xsl:call-template name="double-outdent-block"/>
+                        </xsl:when>
+                    </xsl:choose>
                     <fo:table-column xsl:use-attribute-sets="note__image__column"/>
                     <fo:table-column xsl:use-attribute-sets="note__text__column"/>
                     <fo:table-body>
@@ -464,152 +495,6 @@
             </xsl:when>
             <xsl:otherwise>
                 <xsl:apply-templates select="." mode="placeNoteContent"/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-    
-    <!-- related links 
-    links inline in same block as prefix "related links"
-    only for outputclass = AVpSeeAlso
-    -->
-    <xsl:template match="*[contains(@class,' topic/related-links ')][@outputclass='AVpSeeAlso']">
-        <xsl:if test="normalize-space($includeRelatedLinkRoles)">
-            <xsl:variable name="topicType">
-                <xsl:for-each select="parent::*">
-                    <xsl:call-template name="determineTopicType"/>
-                </xsl:for-each>
-            </xsl:variable>
-            <xsl:if test="child::link">
-                <fo:block xsl:use-attribute-sets="related-links">
-                    <fo:block xsl:use-attribute-sets="related-links.title">
-                        <xsl:call-template name="insertVariable">
-                            <xsl:with-param name="theVariableID" select="'Related Links'"/>
-                        </xsl:call-template>
-                        <fo:inline xsl:use-attribute-sets="related-links__content">
-                            <xsl:apply-templates>
-                                <xsl:with-param name="topicType" select="$topicType"/>
-                            </xsl:apply-templates>
-                        </fo:inline>
-                    </fo:block>
-                </fo:block>
-            </xsl:if>
-        </xsl:if>
-    </xsl:template>
-    
-    <xsl:template match="*[contains(@class,' topic/link ')][ancestor::*[@outputclass='AVpSeeAlso']]">
-        <xsl:param name="topicType">
-            <xsl:for-each select="ancestor::*[contains(@class,' topic/topic ')][1]">
-                <xsl:call-template name="determineTopicType"/>
-            </xsl:for-each>
-        </xsl:param>
-        <xsl:choose>
-            <xsl:when test="(@role and not(contains($includeRelatedLinkRoles, concat(' ', @role, ' ')))) or
-                (not(@role) and not(contains($includeRelatedLinkRoles, ' #default ')))"/>
-            <xsl:when test="@role='child' and $chapterLayout='MINITOC' and
-                ($topicType='topicChapter' or $topicType='topicAppendix' or $topicType='topicPart')">
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:apply-templates select="." mode="processLink"/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-    
-       <xsl:template match="*[contains(@class,' topic/link ')][ancestor::*[@outputclass='AVpSeeAlso']]" mode="processLink">
-        <xsl:variable name="destination" select="opentopic-func:getDestinationId(@href)"/>
-        <xsl:variable name="element" select="key('key_anchor',$destination)[1]"/>
-        <xsl:variable name="referenceTitle">
-            <xsl:apply-templates select="." mode="insertReferenceTitle">
-                <xsl:with-param name="href" select="@href"/>
-                <xsl:with-param name="titlePrefix" select="''"/>
-                <xsl:with-param name="destination" select="$destination"/>
-                <xsl:with-param name="element" select="$element"/>
-            </xsl:apply-templates>
-        </xsl:variable>
-        <xsl:variable name="linkScope">
-            <xsl:call-template name="getLinkScope"/>
-        </xsl:variable>
-        <fo:inline xsl:use-attribute-sets="link.AVpSeeAlso">
-            <!--<xsl:text>&#x2022; </xsl:text>-->
-            <fo:inline xsl:use-attribute-sets="link__content.AVpSeeAlso">
-                <fo:basic-link>
-                    <xsl:call-template name="buildBasicLinkDestination">
-                        <xsl:with-param name="scope" select="$linkScope"/>
-                        <xsl:with-param name="href" select="@href"/>
-                    </xsl:call-template>
-                    <xsl:choose>
-                        <xsl:when test="not($linkScope = 'external') and not($referenceTitle = '')">
-                            <xsl:copy-of select="$referenceTitle"/>
-                        </xsl:when>
-                        <xsl:when test="not($linkScope = 'external')">
-                            <xsl:call-template name="insertPageNumberCitationAVpSeeAlso">
-                                <xsl:with-param name="isTitleEmpty" select="'yes'"/>
-                                <xsl:with-param name="destination" select="$destination"/>
-                                <xsl:with-param name="element" select="$element"/>
-                            </xsl:call-template>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:apply-templates/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </fo:basic-link>
-            </fo:inline>
-            <xsl:if test="not($linkScope = 'external') and not($referenceTitle = '')">
-                <xsl:call-template name="insertPageNumberCitationAVpSeeAlso">
-                    <xsl:with-param name="destination" select="$destination"/>
-                    <xsl:with-param name="element" select="$element"/>
-                </xsl:call-template>
-            </xsl:if>
-            <xsl:call-template name="insertLinkShortDesc">
-                <xsl:with-param name="destination" select="$destination"/>
-                <xsl:with-param name="element" select="$element"/>
-                <xsl:with-param name="linkScope" select="$linkScope"/>
-            </xsl:call-template>
-            
-            <!-- comma after all but last link -->
-            <xsl:if test="following-sibling::*[contains(@class,' topic/link ')]">
-                <xsl:text>,&#160;</xsl:text>
-            </xsl:if>
-        </fo:inline>
-    </xsl:template>
-    
-    <!-- brackets around page num -->
-    <xsl:template name="insertPageNumberCitationAVpSeeAlso">
-        <xsl:param name="isTitleEmpty"/>
-        <xsl:param name="destination"/>
-        <xsl:param name="element"/>
-        <xsl:choose>
-            <xsl:when test="not($element) or ($destination = '')"/>
-            <xsl:when test="$isTitleEmpty">
-                <fo:inline>
-                    <xsl:text>&#160;(</xsl:text>
-                    <xsl:call-template name="insertVariable">
-                        <xsl:with-param name="theVariableID" select="'Page AVpSeeAlso'"/>
-                        <xsl:with-param name="theParameters">
-                            <pagenum>
-                                <fo:inline>
-                                    <fo:page-number-citation ref-id="{$destination}"/>
-                                </fo:inline>
-                            </pagenum>
-                        </xsl:with-param>
-                    </xsl:call-template>
-                    <xsl:text>)</xsl:text>
-                </fo:inline>
-            </xsl:when>
-            <xsl:otherwise>
-                <fo:inline>
-                    <xsl:text>&#160;(</xsl:text>
-                    <xsl:call-template name="insertVariable">
-                        <xsl:with-param name="theVariableID" select="'On the page AVpSeeAlso'"/>
-                        <xsl:with-param name="theParameters">
-                            <pagenum>
-                                <fo:inline>
-                                    <fo:page-number-citation ref-id="{$destination}"/>
-                                </fo:inline>
-                            </pagenum>
-                        </xsl:with-param>
-                    </xsl:call-template>
-                    <xsl:text>)</xsl:text>
-                </fo:inline>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>

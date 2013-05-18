@@ -20,7 +20,7 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="*[contains(@class, ' topic/ul ')]/*[contains(@class, ' topic/li ')]">
+    <xsl:template match="*[contains(@class, ' topic/ul ')]/*[contains(@class, ' topic/li ')]" priority="1.5">
         <fo:list-item xsl:use-attribute-sets="ul.li">
             <xsl:call-template name="determine-keeps">
                 <xsl:with-param name="type" select="' topic/li '"/>
@@ -45,7 +45,7 @@
         </fo:list-item>
     </xsl:template>
     
-    <xsl:template match="*[contains(@class, ' topic/ol ')]/*[contains(@class, ' topic/li ')]">
+    <xsl:template match="*[contains(@class, ' topic/ol ')]/*[contains(@class, ' topic/li ')]" priority="1.5">
         <fo:list-item xsl:use-attribute-sets="ol.li">
             <xsl:call-template name="determine-keeps">
                 <xsl:with-param name="type" select="' topic/li '"/>
@@ -96,7 +96,7 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="*[contains(@class, ' task/steps ')]/*[contains(@class, ' task/step ')]">
+    <xsl:template match="steps[contains(@class, ' task/steps ')]/step[contains(@class, ' task/step ')]" priority="2">
         <!-- Switch to variable for the count rather than xsl:number, so that step specializations are also counted -->
         <xsl:variable name="actual-step-count" select="number(count(preceding-sibling::*[contains(@class, ' task/step ')])+1)"/>
         <fo:list-item xsl:use-attribute-sets="steps.step">
@@ -130,7 +130,7 @@
         </fo:list-item>
     </xsl:template>
     
-    <xsl:template match="*[contains(@class, ' task/steps-unordered ')]/*[contains(@class, ' task/step ')]">
+    <xsl:template match="*[contains(@class, ' task/steps-unordered ')]/*[contains(@class, ' task/step ')]" priority="2">
         <fo:list-item xsl:use-attribute-sets="steps-unordered.step">
             <xsl:call-template name="determine-keeps">
                 <xsl:with-param name="type" select="' task/step '"/>
